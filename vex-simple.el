@@ -1,4 +1,4 @@
-;;; b-edit.el --- Basic and simple editing library
+;;; vex-simple.el --- vanilla Emacs extension - simple
 ;;
 ;; -*- lexical-binding: t -*-
 ;;
@@ -33,7 +33,6 @@
 ;;
 ;;; Commentary:
 ;;
-;;
 ;;; Code:
 
 (require 'simple)
@@ -47,14 +46,14 @@ If ARG positive UP otherwise DOWN."
   (let ((beg (region-beginning))
          (end (region-end))
          (dir (if (> arg 0) 1 -1))) ;; direction down or up
-  ;; step 2: cut and paste
-  (let ((text (delete-and-extract-region beg end)))
-    (forward-line dir) ;; direction
-    (insert text)
-    ;; step 3: restore mark if necessary
-    (when (region-active-p)
-      (setq deactivate-mark nil)
-      (set-mark (+ (point) (- beg end)))))))
+    ;; step 2: cut and paste
+    (let ((text (delete-and-extract-region beg end)))
+      (forward-line dir) ;; direction
+      (insert text)
+      ;; step 3: restore mark if necessary
+      (when (region-active-p)
+        (setq deactivate-mark nil)
+        (set-mark (+ (point) (- beg end)))))))
 
 (defun transpose-line (arg)
   "Transpose line ARG set the direction.
@@ -118,18 +117,46 @@ will be duplicated."
 
 (defun transpose-word-left (n)
   "Transpose N words to the opposite direction (left)."
-  (interactive "P")
+  (interactive "p")
   (transpose-words (- (or n 1))))
 
-(defun copy-line-at-point (&optional arg)
+(defun copy-line (&optional arg)
   "Copy lines, do not kill then.
 With prefix argument ARG, kill (copy) that many lines from point."
-  (interactive "P")
+  (interactive "p")
   (let ((buffer-read-only t)
          (kill-read-only-ok t))
     (save-excursion
       (move-beginning-of-line nil)
       (kill-line arg))))
 
-(provide 'b-simple)
-;;; b-simple.el ends here
+(defun copy-text-or-symbol-at-point ()
+  "Get the text in region or symbol at point.
+If region is active, return the text in that region.
+Else if the point is on a symbol, return that symbol name.
+Else return nil."
+  (interactive)
+  (cond ((use-region-p)
+          (buffer-substring-no-properties
+            (region-beginning) (region-end)))
+    ((symbol-at-point)
+      (substring-no-properties (thing-at-point 'symbol)))
+    (t nil)))
+
+(defun back-to-indent-or-line (arg)
+  "Move point back to indentation or beginning of line.
+With argument ARG not nil or 1, move forward ARG - 1 lines first."
+  (interactive "p")
+  (setq arg (or arg 1))
+  ;; first forwards lines
+  (when (/= arg 1)
+    (let ((line-move-visual nil))
+      (forward-line (1- arg))))
+  ;; back to indentation or beginning if line
+  (let ((orig-point (point)))
+    (back-to-indentation)
+    (when (= orig-point (point))
+      (move-beginning-of-line 1))))
+
+(provide 'vex-simple)
+;;; vex-simple.el ends here
