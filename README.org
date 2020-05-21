@@ -1,0 +1,14 @@
+#+AUTHOR: esac <esac-io@tutanota.com>
+#+PROPERTY: header-args :tangle no
+
+* Introduction
+
+  Vex - vanilla Emacs extensions, just a place to put new functions.
+
+* LICENSE
+  MIT
+
+* EOF
+  All things change in a dynamic environment.
+  Your effort to remain what you are is what limits you.
+  | Puppet Master |
