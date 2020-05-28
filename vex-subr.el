@@ -38,12 +38,19 @@
 
 (require 'files)
 
-(defun safe-start-process (name buffer program &optional args)
+;; TODO: default sentinel function
+;; TODO: default filter function
+
+(defun safe-start-process (name program &rest args)
   "Just a `start-process' function wrapper.
-If program exists in `exec-path' execute it.
-See \\[describe-function] `start-process' for its documentation.'"
-  (when (executable-find program)
-    (start-process name buffer program args)))
+If program exists in `exec-path' execute it."
+  ;; questions/research
+  ;; 1. handle buffer creation?
+  ;; 2. handle directory ?
+  (setq args (or args ""))
+  (if (executable-find program)
+    (start-process name nil program args)
+    (message "Unable to start %s program (not found)" program)))
 
 (provide 'vex-subr)
 ;;; vex-subr.el ends here
