@@ -37,16 +37,21 @@
 ;;; Code:
 
 (defvar vex-features
-  '(vex-c vex-simple vex-subr vex-window)
+  '( vex-c
+     vex-subr
+     vex-files
+     vex-simple
+     vex-window
+     vex-files )
   "Vex features symbols list.")
 
-(defun vex-load-file (features)
-  "Parse FEATURES list to file path and load it."
-  (dolist (feature features)
-    (load (concat default-directory (symbol-name feature) ".el"))))
+(defun vex-initialize ()
+  "Load vex features."
+  (dolist (feature vex-features)
+    (require feature nil t)))
 
 ;; load files
-(vex-load-file vex-features)
+(vex-initialize)
 
 (provide 'vex)
 ;;; vex.el ends here
