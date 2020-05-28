@@ -44,11 +44,60 @@
 (defun safe-kill-buffer (buffer-or-name)
   "Kill buffer specified by BUFFER-OR-NAME, if exists."
   (unless (or (stringp buffer-or-name)
-              (bufferp buffer-or-name))
+            (bufferp buffer-or-name))
     (error "`buffer-or-name' must be a string or a buffer object"))
   (let ((buffer (get-buffer buffer-or-name)))
     (when (buffer-live-p buffer)
       (kill-buffer buffer))))
+
+(defun safe-load-file (file)
+  "Load FILE if exists."
+  (if (file-exists-p file)
+    (load (expand-file-name file) t nil nil)
+    (message "File %s not found" file)))
+
+(defun safe-add-subdirs-to-load-path (dir)
+  "Add DIR and sub-directories to `load-path'."
+  (let ((default-directory
+          (expand-file-name dir user-emacs-directory)))
+    (when (file-directory-p default-directory)
+      (normal-top-level-add-subdirs-to-load-path))))
+
+(defun safe-add-list-to-load-path (dir-list)
+  "Add directories defined in DIR-LIST to `load-path'."
+  (dolist (dir dir-list)
+    (when (file-directory-p dir)
+      (unless (member dir load-path)
+        (append 'load-path
+          (expand-file-name dir user-emacs-directory))))))
+
+(defun select-minibuffer-window ()
+  "Focus the active minibuffer, if available.
+
+Bind this to `completion-list-mode-map' to easily jump
+between the list of candidates present in the \\*Completions\\*
+buffer and the minibuffer."
+
+  (interactive)
+  (let ((window (active-minibuffer-window)))
+    (when window
+      (select-window window nil))))
+
+(defun select-minibuffer-or-completions-window ()
+  "Focus the active minibuffer or the \\*Completions\\*.
+
+If both the minibuffer and the Completions are present, this
+command will first move per invocation to the former, then the
+latter, and then continue to switch between the two."
+
+  (interactive)
+  (let ((minibuffer-window (active-minibuffer-window))
+        (completions-window (get-buffer-window "*Completions*")))
+    (cond
+      ((and minibuffer-window (not (minibufferp)))l
+        (select-window minibuffer-window nil))
+      ((and completions-window (get-buffer "*Completions*"))
+        (select-window completions-window t)))))
 
 (provide 'vex-c)
 ;;; vex-c.el ends here
