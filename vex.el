@@ -45,13 +45,11 @@
      vex-files )
   "Vex features symbols list.")
 
-(defun vex-initialize ()
-  "Load vex features."
-  (dolist (feature vex-features)
-    (require feature nil t)))
-
-;; load files
-(vex-initialize)
+(require 'vex-c)
+(require 'vex-subr)
+(require 'vex-files)
+(require 'vex-simple)
+(require 'vex-window)
 
 (provide 'vex)
 ;;; vex.el ends here

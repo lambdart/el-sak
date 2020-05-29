@@ -41,13 +41,12 @@
 ;; TODO: default sentinel function
 ;; TODO: default filter function
 
-(defun safe-start-process (name program &rest args)
+(defun safe-start-process (name program args)
   "Just a `start-process' function wrapper.
 If program exists in `exec-path' execute it."
   ;; questions/research
   ;; 1. handle buffer creation?
   ;; 2. handle directory ?
-  (setq args (or args ""))
   (if (executable-find program)
     (start-process name nil program args)
     (message "Unable to start %s program (not found)" program)))

@@ -39,7 +39,7 @@
 (defun safe-funcall (func &rest args)
   "Call FUNC with ARGS, if it's bounded."
   (when (fboundp func)
-    (funcall args)))
+    (funcall func args)))
 
 (defun safe-kill-buffer (buffer-or-name)
   "Kill buffer specified by BUFFER-OR-NAME, if exists."
@@ -94,7 +94,7 @@ latter, and then continue to switch between the two."
   (let ((minibuffer-window (active-minibuffer-window))
         (completions-window (get-buffer-window "*Completions*")))
     (cond
-      ((and minibuffer-window (not (minibufferp)))l
+      ((and minibuffer-window (not (minibufferp)))
         (select-window minibuffer-window nil))
       ((and completions-window (get-buffer "*Completions*"))
         (select-window completions-window t)))))
