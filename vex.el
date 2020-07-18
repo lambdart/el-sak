@@ -1,27 +1,25 @@
-;;; vex.el --- vanilla Emacs extensions
-
-;; -*- lexical-binding: t -*-
-
+;;; vex.el --- vanilla Emacs extensions -*- lexical-binding: t -*-
+;;
 ;; Author: esac <esac-io@tutanota.com>
 ;; Version: 0.1
 ;; URL: https://github.com/esac-io/vex
-
+;;
 ;; This file is NOT part of GNU Emacs.
-
+;;
 ;;; MIT License
-
+;;
 ;; Copyright (c) 2020 esac
-
+;;
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy
 ;; of this software and associated documentation files (the "Software"), to deal
 ;; in the Software without restriction, including without limitation the rights
 ;; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 ;; copies of the Software, and to permit persons to whom the Software is
 ;; furnished to do so, subject to the following conditions:
-
+;;
 ;; The above copyright notice and this permission notice shall be included in
 ;; all copies or substantial portions of the Software.
-
+;;
 ;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 ;; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 ;; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,15 +34,18 @@
 ;; this functions should be small in code size and its goals are to engage
 ;; the overall usability, some of them has the prefix 'safe' which indicates
 ;; their purposed to be a more safer version compered to the
-;; original counterparts, others don't have any prefix
-;; and this is intentional, as they are basic functions
-;; and will be called from the interactive prompt (minibuffer)
-;; or keybinded latter. The functions names follows the
+;; original counterparts.
+;;
+;; Others don't have any prefix and this is intentional,
+;; as they are basic functions and will be called from the
+;; interactive prompt (minibuffer) or keybinded latter.
+;;
+;; The functions names follows the
 ;; code convection (action-object) stated in Elisp tips manuals.
-
+;;
 ;; TODO: Add elisp manual reference!
 ;; TODO: List the functions here!
-
+;;
 ;;; Code:
 
 (require 'files)
@@ -83,8 +84,7 @@
   (dolist (dir dir-list)
     (when (file-directory-p dir)
       (unless (member dir load-path)
-        (append 'load-path
-                (expand-file-name dir user-emacs-directory))))))
+        (push dir load-path)))))
 
 (defun safe-mkdir (dir)
   "Create DIR in the file system."
@@ -109,6 +109,11 @@ buffer and the minibuffer."
   (let ((window (active-minibuffer-window)))
     (when window
       (select-window window nil))))
+
+(defun safe-set-frame-font (font)
+  "Set the default font to FONT."
+  (cond ((find-font (font-spec :name font))
+         (set-frame-font font nil t))))
 
 (defun select-minibuffer-or-completions-window ()
   "Focus the active minibuffer or the \\*Completions\\*.
