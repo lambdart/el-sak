@@ -5,27 +5,30 @@
 EMACS = emacs -Q -q --batch
 
 # Remove command
-RM = rm -f
+RM = rm
 
-# Define Compile Command (CC)
+# Additional emacs load-path
+LOAD_PATH := -L ${PWD}
+
+# Define Compile Command
 # Call batch-byte-compile function: -f
-CC := -f batch-byte-compile
+COMPILE := -f batch-byte-compile
 
 # Expand the source code files
 EL != ls *.el
 
 # Compiled files
-ELC := $(EL:.el=.elc)
+ELC = ${EL:.el=.elc}
 
-# transform lisp text (.el) files in byte compiled (.elc) files
-$(ELC): $(EL)
-	${EMACS} ${CC} ${.ALLSRC}
-
-# Entry Point
+# Default goal
 all: compile
 
 # Compile needed files
 compile: $(ELC)
 
+# Translate lisp text (.el) files in byte compiled (.elc) files
+$(ELC): $(EL)
+	${EMACS} ${LOAD_PATH} ${COMPILE} ${.ALLSRC}
+
 clean:
-	${RM} *.elc
+	${RM} ${ELC}
