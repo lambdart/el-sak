@@ -6,8 +6,9 @@
   An simple =Elisp= package (scripts)  - a place to put small
   new functions and expressions to evaluated - little hacks
   to improve =Emacs= overall usability, living everything more
-  organized and easy to manage. =VEX= stands for
-  =Vanilla Emacs Extensions=.
+  organized and easy to manage.
+
+  =VEX= was inspired by =[V]anilla [EX]tensions=.
 
   On =Emacs= every user it's also a developer,
   we twist and extend your programmable platform to meet our needs,
