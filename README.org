@@ -36,8 +36,74 @@
   By definition the new procedures should be just =little hacks=,
   small in nature.
 
+* Dependencies
+** Elisp
+
+   - simple
+   - files
+   - completion
+
+** Non-Elisp
+
+   - transset
+   - feh
+
+* Tested on
+
+  - Emacs 26.3
+  - Emacs 28.0.50
+
 * Install
+** Manually
+
+  Clone =Vex= repository to a arbitrary location:
+
+  #+BEGIN_SRC sh
+
+  $ git clone https://github.com/esac-io/vex ~/.emacs.d/site-elisp/vex
+
+  #+END_SRC
+
+  Add =Vex= directory to =load-path= in your
+  Emacs initialization file (~init.el~) and load it.
+
+  #+BEGIN_SRC emacs-lisp
+
+  ;; add to load-path
+  (add-to-list 'load-path "/replace/me/to/vex/full/path")
+
+  ;; load vex basic features
+  (require 'vex nil t)
+
+  ;; load vex utilities
+  (require 'vex-util nil t)
+
+  #+END_SRC
+
+  - Note: For a more dynamic approach:
+    - =M-x load-library RET vex RET=
+    - =M-x load-library RET vex-util RET=
+
+** Compile
+
+   * Note: Optional but recommended.
+
+   To compile the files the the byte-compiled =Elisp= representation:
+
+   #+BEGIN_SRC sh
+
+   [at-vex-root-directory]$ make
+
+   #+END_SRC
+
 * Customize
+
+  To see all the options inside =Emacs= and to customize it,
+  uses: =M-x customize-group RET vex-util RET=.
+
+  Just a few options are available related to the utilities:
+  =transset= and =feh=.
+
 * LICENSE
   MIT
 * EOF
