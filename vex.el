@@ -301,5 +301,12 @@ Or indents the current line."
         (funcall initial-major-mode)))
     (switch-to-buffer buffer)))
 
+(defun compile-at-dir (dir command)
+  "Compile passing COMMAND at DIR.
+Just a `compile' function wrapper."
+  (if (file-exists-p dir)
+      (let ((default-directory dir))
+        (compile command))))
+
 (provide 'vex)
 ;;; vex.el ends here
