@@ -27,9 +27,9 @@
 ;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
-
+;;
 ;;; Commentary:
-
+;;
 ;; This package adds more (clever) functions to the builtin packages,
 ;; this functions should be small in code size and its goals are to engage
 ;; the overall usability, some of them has the prefix 'safe' which indicates
@@ -98,6 +98,7 @@ The program will be stated if exists in \\[exec-path]."
     (start-process name nil program args)
     (message "Unable to start %s program, executable not found" program)))
 
+;;;###autoload
 (defun select-minibuffer-window ()
   "Focus the active minibuffer, if available.
 
@@ -115,6 +116,7 @@ buffer and the minibuffer."
   (cond ((find-font (font-spec :name font))
          (set-frame-font font nil t))))
 
+;;;###autoload
 (defun select-minibuffer-or-completions-window ()
   "Focus the active minibuffer or the \\*Completions\\*.
 
@@ -163,11 +165,13 @@ If ARG is positive UP else DOWN."
       ;; step 3: restore line position
       (forward-char (- orig end)))))
 
+;;;###autoload
 (defun indent-buffer ()
   "Indent the currently visited buffer."
   (interactive)
   (indent-region (point-min) (point-max)))
 
+;;;###autoload
 (defun indent-region-or-buffer ()
   "Indent a region if selected, otherwise the whole buffer."
   (interactive)
@@ -176,6 +180,7 @@ If ARG is positive UP else DOWN."
         (indent-region (region-beginning) (region-end))
       (indent-buffer))))
 
+;;;###autoload
 (defun clone-line-or-region (&optional n)
   "Clone the current line or region N times.
 If there's no region, the current line will be duplicated.
@@ -195,6 +200,7 @@ will be duplicated."
         (insert region)
         (setq i (1- i))))))
 
+;;;###autoload
 (defun transpose-lines-up ()
   "Transpose lines in down direction."
   (interactive)
@@ -202,6 +208,7 @@ will be duplicated."
       (transpose-region 1)
     (transpose-line 1)))
 
+;;;###autoload
 (defun transpose-lines-down ()
   "Transpose lines in up direction."
   (interactive)
@@ -209,11 +216,13 @@ will be duplicated."
       (transpose-region -1)
     (transpose-line -1)))
 
+;;;###autoload
 (defun transpose-word-left (n)
   "Transpose N words to the opposite direction (left)."
   (interactive "p")
   (transpose-words (- (or n 1))))
 
+;;;###autoload
 (defun copy-line (&optional arg)
   "Copy lines, do not kill then.
 With prefix argument ARG, kill (copy) that many lines from point."
@@ -224,6 +233,7 @@ With prefix argument ARG, kill (copy) that many lines from point."
       (move-beginning-of-line nil)
       (kill-line arg))))
 
+;;;###autoload
 (defun copy-text-or-symbol-at-point ()
   "Get the text in region or symbol at point.
 If region is active, return the text in that region.
@@ -237,6 +247,7 @@ Else return nil."
          (substring-no-properties (thing-at-point 'symbol)))
         (t nil)))
 
+;;;###autoload
 (defun back-to-indent-or-line (arg)
   "Move point back to indentation or beginning of line.
 With argument ARG not nil or 1, move forward ARG - 1 lines first."
@@ -252,6 +263,7 @@ With argument ARG not nil or 1, move forward ARG - 1 lines first."
     (when (= orig-point (point))
       (move-beginning-of-line 1))))
 
+;;;###autoload
 (defun complete-or-indent ()
   "Complete or indent."
   (interactive)
@@ -259,6 +271,7 @@ With argument ARG not nil or 1, move forward ARG - 1 lines first."
    ((looking-at "\\_>") (complete nil))
    (t (indent-according-to-mode))))
 
+;;;###autoload
 (defun complete-at-point-or-indent ()
   "This smart tab is a `minibuffer' compliant.
 
@@ -276,6 +289,7 @@ Or indents the current line."
    ((looking-at "\\_>") (complete-symbol nil))
    (t (indent-according-to-mode))))
 
+;;;###autoload
 (defun switch-to-scratch ()
   "Switch to *scratch* buffer."
   (interactive)
