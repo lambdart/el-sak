@@ -36,6 +36,7 @@
 ;;; Code:
 
 (require 'files)
+(require 'vex)
 
 (defgroup vex-util nil
   "Vex utilities."
@@ -48,7 +49,7 @@
   :group 'vex-util
   :safe t)
 
-(defcustom vex-opacity .8
+(defcustom vex-opacity .9
   "Opacity default value.
 The opacity value is a number from 0 to 1,
 with zero being fully transparent and 1 being fully opaque."
@@ -116,8 +117,18 @@ It lets the user set the transparency on a window."
                                         vex-image-dir
                                         nil
                                         'confirm))))
+    ;; Note: just experiencing another way to achieve the same
+    ;; transformation!
+    ;; if the target executable was not found
+    ;; write the string in message/echo area
+    ;; and leave, else execute the command, using async-shell-command
     (if (not (executable-find vex-image-viewer))
         (message "Program %s not found" vex-image-viewer)
+      ;; Remember: In Elisp, you will often be better served by
+      ;; calling `start-process' directly, since it offers more
+      ;; control and does not impose the use of
+      ;; a shell (with its need to quote arguments).
+      ;; TODO: Research, it is really necessary to use start-process?
       (async-shell-command
        (format "%s  %s  %s"
                vex-image-viewer
