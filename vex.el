@@ -51,6 +51,7 @@
 (require 'files)
 (require 'simple)
 (require 'completion)
+(require 'completion)
 
 (defun safe-funcall (func &rest args)
   "Call FUNC with ARGS, if it's bounded."
@@ -95,7 +96,7 @@
   "Just a `start-process' function wrapper.
 The program will be stated if exists in \\[exec-path]."
   (if (executable-find program)
-    (start-process name nil program args)
+      (start-process name nil program args)
     (message "Unable to start %s program, executable not found" program)))
 
 ;;;###autoload
@@ -298,9 +299,18 @@ Or indents the current line."
       (when (zerop (buffer-size))
         (insert (substitute-command-keys initial-scratch-message)))
       (if (eq major-mode 'fundamental-mode)
-        (funcall initial-major-mode)))
+          (funcall initial-major-mode)))
     (switch-to-buffer buffer)))
 
+;;;###autoload
+(defun byte-compile-current-file ()
+  "Save and byte compile current file."
+  (interactive)
+  (when buffer-file-name
+    (save-buffer)
+    (byte-compile-file buffer-file-name)))
+
+;;;###autoload
 (defun compile-at-dir (dir command)
   "Compile passing COMMAND at DIR.
 Just a `compile' function wrapper."
