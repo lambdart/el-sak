@@ -36,7 +36,6 @@
 ;;; Code:
 
 (require 'files)
-(require 'vex)
 
 (defgroup vex-util nil
   "Vex utilities."
@@ -82,6 +81,12 @@ It lets the user set the transparency on a window."
   :group 'vex-util
   :safe t)
 
+(defcustom vex-args-prompt "Args: "
+  "Image viewer args prompt string."
+  :type 'string
+  :group 'vex-util
+  :safe t)
+
 (defcustom vex-image-viewer-options "--bg-fill"
   "Options for the `vex-image-viewer' program."
   :type 'string
@@ -97,7 +102,7 @@ It lets the user set the transparency on a window."
 ;;;###autoload
 (defun set-frame-transparency (&optional opacity)
   "Set OPACITY transparency in current frame."
-  (interactive "P")
+  (interactive)
   (let ((opacity (or opacity
                      (read-number vex-opacity-prompt vex-opacity))))
     (if (executable-find vex-transset)
@@ -109,14 +114,22 @@ It lets the user set the transparency on a window."
       (message "Program %s not found" vex-transset))))
 
 ;;;###autoload
-(defun set-wallpaper (&optional image-file)
-  "Set IMAGE-FILE as background/wallpaper using `vex-image-viewer' binary."
+(defun set-wallpaper (prefix &optional image)
+  "Set background IMAGE using `vex-image-viewer' binary.
+with universal argument PREFIX will prompt a second one,
+asking for image viewer complementary args."
+  ;; P -- Prefix arg in raw form
   (interactive "P")
-  (let ((image-file (or image-file
-                        (read-file-name vex-image-prompt
-                                        vex-image-dir
-                                        nil
-                                        'confirm))))
+  (let
+      ;; get image file
+      ((image (or image
+                  (read-file-name vex-image-prompt
+                                  vex-image-dir
+                                  nil
+                                  'confirm)))
+       ;; get args if C-u (universal argument) was used
+       (args (if prefix (read-string vex-args-prompt "-g +0-0") "")))
+
     ;; Note: just experiencing another way to achieve the same
     ;; transformation!
     ;; if the target executable was not found
@@ -130,10 +143,11 @@ It lets the user set the transparency on a window."
       ;; a shell (with its need to quote arguments).
       ;; TODO: Research, it is really necessary to use start-process?
       (async-shell-command
-       (format "%s  %s  %s"
+       (format "%s %s %s %s"
                vex-image-viewer
                vex-image-viewer-options
-               image-file)))))
+               args
+               image)))))
 
 (provide 'vex-util)
 ;;; vex-util.el ends here
