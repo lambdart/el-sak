@@ -51,7 +51,7 @@
 (require 'files)
 (require 'simple)
 (require 'completion)
-(require 'completion)
+(require 'replace)
 
 (defun safe-funcall (func &rest args)
   "Call FUNC with ARGS, if it's bounded."
@@ -182,11 +182,10 @@ If ARG is positive UP else DOWN."
       (indent-buffer))))
 
 ;;;###autoload
-(defun clone-line-or-region (&optional n)
-  "Clone the current line or region N times.
+(defun duplicate-line-or-region (&optional n)
+  "Duplicate current line or region N times.
 If there's no region, the current line will be duplicated.
-However, if there's a region, all lines that region covers
-will be duplicated."
+Otherwise, its lines will be duplicated."
   (interactive "p")
   (let ((beg (line-beginning-position))
         (end (line-end-position))
@@ -317,6 +316,27 @@ Just a `compile' function wrapper."
   (if (file-exists-p dir)
       (let ((default-directory dir))
         (compile command))))
+
+;;;###autoload
+(defun occur-at-point ()
+  "Occur with symbol or region as its arguments."
+  (interactive)
+  (let*
+      ;; get region or symbol
+      ((bounds (if (use-region-p)
+                   (cons (region-beginning) (region-end))
+                 (bounds-of-thing-at-point 'symbol)))
+       ;; get string
+       (string (unless bounds
+                 (read-string "Occur: "))))
+    (cond
+     ;; region
+     (bounds
+      (occur (buffer-substring-no-properties
+              (car bounds) (cdr bounds)))
+      (deactivate-mark))
+     ;; default string, symbol
+     (t (occur string)))))
 
 (provide 'vex)
 ;;; vex.el ends here
