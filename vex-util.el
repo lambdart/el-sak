@@ -149,5 +149,23 @@ asking for image viewer complementary args."
                args
                image)))))
 
+;; (defun execute-file (&optional prefix)
+;; TODO: integrate with the universal argument
+;; and prompt the arguments one
+;; (interactive "P")
+
+;;;###autoload
+(defun execute-file ()
+  "Execute a file using `start-process'."
+  (interactive)
+  (let* ((file (read-file-name "File: " nil nil t))
+         (program (expand-file-name file))
+         (name (file-name-nondirectory program))
+         (default-directory (file-name-directory program))
+         (process-connection-type t))
+    (if (file-executable-p program)
+        (start-process name (concat "*" name "*") program )
+      (message "Was not possible to execute: %s" name))))
+
 (provide 'vex-util)
 ;;; vex-util.el ends here
