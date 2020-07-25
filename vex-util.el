@@ -57,7 +57,7 @@ with zero being fully transparent and 1 being fully opaque."
   :safe t)
 
 (defcustom vex-transset "transset"
-  "Transset is a simple program for X servers.
+  "Transset is a simple file for X servers.
 It lets the user set the transparency on a window."
   :type 'string
   :group 'vex-util
@@ -75,13 +75,13 @@ It lets the user set the transparency on a window."
   :group 'vex-util
   :safe t)
 
-(defcustom vex-image-prompt "Image file: "
+(defcustom vex-image-viewer-prompt "Image file: "
   "Image prompt string."
   :type 'string
   :group 'vex-util
   :safe t)
 
-(defcustom vex-args-prompt "Args: "
+(defcustom vex-image-viewer-args-prompt "Args: "
   "Image viewer args prompt string."
   :type 'string
   :group 'vex-util
@@ -89,6 +89,12 @@ It lets the user set the transparency on a window."
 
 (defcustom vex-image-viewer-options "--bg-fill"
   "Options for the `vex-image-viewer' program."
+  :type 'string
+  :group 'vex-util
+  :safe t)
+
+(defcustom vex-image-viewer-args "-g +0-0"
+  "An Image viewer default args."
   :type 'string
   :group 'vex-util
   :safe t)
@@ -114,29 +120,41 @@ It lets the user set the transparency on a window."
       (message "Program %s not found" vex-transset))))
 
 ;;;###autoload
-(defun set-wallpaper (prefix &optional image)
+(defun set-wallpaper (image &optional prefix)
   "Set background IMAGE using `vex-image-viewer' binary.
 with universal argument PREFIX will prompt a second one,
 asking for image viewer complementary args."
-  ;; P -- Prefix arg in raw form
-  (interactive "P")
-  (let
-      ;; get image file
-      ((image (or image
-                  (read-file-name vex-image-prompt
-                                  vex-image-dir
-                                  nil
-                                  'confirm)))
-       ;; get args if C-u (universal argument) was used
-       (args (if prefix (read-string vex-args-prompt "-g +0-0") "")))
-
-    ;; Note: just experiencing another way to achieve the same
-    ;; transformation!
-    ;; if the target executable was not found
-    ;; write the string in message/echo area
-    ;; and leave, else execute the command, using async-shell-command
-    (if (not (executable-find vex-image-viewer))
-        (message "Program %s not found" vex-image-viewer)
+  ;; (interactive (list …)) → This is the most general way
+  ;; to fill function arguments from user input.
+  ;; This list elements will be passed as arguments to your function.
+  ;; Usually, it's like this (interactive some_lisp_code) where some_lisp_code
+  ;; evaluates to a list.
+  (interactive
+   (list
+    ;; get image file
+    (read-file-name vex-image-viewer-prompt
+                    vex-image-dir
+                    nil
+                    t)
+    ;; get current prefix argument (universal argument)
+    ;; optional!
+    current-prefix-arg))
+  ;; body:
+  ;; get args if C-u (universal argument) was used
+  (let ((args (if prefix
+                  (read-string vex-image-viewer-args-prompt
+                               vex-image-viewer-args))))
+    ;; let body:
+    ;; conditions (switch/case equivalent)
+    (cond
+     ;; it is possible to execute vex-image-viewer program
+     ((not (executable-find vex-image-viewer))
+      (message "Program %s not executable" vex-image-viewer))
+     ;; verify if the file exists and it's a regular file
+     ((or (file-directory-p image) (not (file-exists-p image)))
+      (message "Image file %s not found" image))
+     ;; default call vex-image-viewer to set the wallpaper
+     (t
       ;; Remember: In Elisp, you will often be better served by
       ;; calling `start-process' directly, since it offers more
       ;; control and does not impose the use of
@@ -147,25 +165,37 @@ asking for image viewer complementary args."
                vex-image-viewer
                vex-image-viewer-options
                args
-               image)))))
-
-;; (defun execute-file (&optional prefix)
-;; TODO: integrate with the universal argument
-;; and prompt the arguments one
-;; (interactive "P")
+               image))))))
 
 ;;;###autoload
-(defun execute-file ()
-  "Execute a file using `start-process'."
-  (interactive)
-  (let* ((file (read-file-name "File: " nil nil t))
-         (program (expand-file-name file))
-         (name (file-name-nondirectory program))
-         (default-directory (file-name-directory program))
-         (process-connection-type t))
-    (if (file-executable-p program)
-        (start-process name (concat "*" name "*") program )
-      (message "Was not possible to execute: %s" name))))
+(defun execute-file (file &optional prefix)
+  "Execute arbitrary FILE using `start-process'.
+If PREFIX \\[universal-argument] was used,
+display a secondary prompt for additional arguments."
+  ;; f - a valid file, P - raw prefix
+  (interactive "fFile: \nP")
+  (let* (
+         ;; set only the file name (remove full path)
+         (name (file-name-nondirectory file))
+         ;; set default directory
+         (default-directory (file-name-directory file))
+         ;; use a pipe, or t to use a pty
+         (process-connection-type t)
+         ;; if prefix set arguments string
+         (args (if prefix
+                   (split-string (read-string "Args: ")))))
+    (cond
+     ;; test if file is a directory
+     ((file-directory-p file)
+      (message "Directories are not executable files"))
+     ;; test if its not possible to access the directory
+     ((not (file-accessible-directory-p default-directory))
+      (message "Directory not accessible"))
+     ;; test if the file is a executable
+     ((file-executable-p file)
+      (apply 'start-process name (concat "*" name "*") file args))
+     ;; default, not a executable file
+     (t (message "File %s is not executable" name)))))
 
 (provide 'vex-util)
 ;;; vex-util.el ends here
