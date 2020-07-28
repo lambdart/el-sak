@@ -3,39 +3,42 @@
 
 * Introduction
 
-  An simple =Elisp= package (scripts)  - a place to put small
-  new functions and expressions to evaluated - little hacks
-  to improve =Emacs= overall usability, living everything more
-  organized and easy to manage.
+  An simple =Elisp= package - a place to put small
+  new functions to be evaluated - little hacks to improve
+  =Emacs= overall usability keeping everything more organized
+  and easy to manage.
 
   The =VEX= name was inspired by =[V]anilla [EX]tensions=.
 
-  On =Emacs= every user it's also a developer,
-  we twist and extend your programmable platform to meet our needs,
+* Overview
+
+  On =Emacs= every user is also a developer, we twist and extend
+  your programmable platform to meet our needs,
   to automatize boring tasks, to become more productive -
-  using smart data/stream transformations, to quickly analyse data
+  using smart data/stream transformations to quickly analyse data
   and processes of interest, and more, much more!
 
   This is probably a continuum for the =Emacs= user life spam,
   =forever= an =user developer=, taking more and more control,
   engaging our manipulative capabilities all day long.
 
-  Usually, people do this directly in the configuration files -
+  Usually, people accomplish this directly in the configuration files -
   ~init.el, .emacs~, etc.. - as the =Elisp= interpreter do not
-  differentiate them (an =Elisp= script is a sequence of declared
-  =Forms= to be evaluate, that's all, does matter the intent of it).
+  differentiate them at all - remember, an =Elisp= script is a sequence
+  of declared =Forms= to be evaluated, doesn't matter the intent of it.
 
-  Although the generic aspect of it is great, as a side-effect, it's
-  easy to become lost in the lack of organization, making difficult
-  to extend/reuse/modify the code that was already written (for you
-  and others).
+  Although, the generic aspect of it is great, we have something too
+  flexible in your hands and things can be out of control really
+  quickly if organization isn't one of our concerns.
 
   So, that's why =Vex= was created to pull all this new functions
   that depends only on the builtin functionalities of =Emacs= in
-  the same place, outside of the ~init.el~ configuration file.
+  the same place, outside of the ~init.el~ configuration file,
+  making easy to extend/reuse/modify the code that was already
+  written.
 
-  By definition the new procedures should be just =little hacks=,
-  small in nature.
+  By definition the new procedures should be =little hacks=,
+  naturally small.
 
 * Dependencies
 ** Elisp
