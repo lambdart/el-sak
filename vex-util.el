@@ -108,21 +108,20 @@ It lets the user set the transparency on a window."
 ;;;###autoload
 (defun set-frame-transparency (&optional opacity)
   "Set OPACITY transparency in current frame."
-  (interactive)
-  (let ((opacity (or opacity
-                     (read-number vex-opacity-prompt vex-opacity))))
-    (if (executable-find vex-transset)
-        (async-shell-command
-         (format "%s %s %.1f"
-                 vex-transset
-                 vex-transset-options
-                 opacity))
-      (message "Program %s not found" vex-transset))))
+  (interactive
+   (list (read-number vex-opacity-prompt vex-opacity)))
+  (if (executable-find vex-transset)
+      (async-shell-command
+       (format "%s %s %.1f"
+               vex-transset
+               vex-transset-options
+               (or opacity vex-opacity)))
+    (message "Program %s not found" vex-transset)))
 
 ;;;###autoload
-(defun set-wallpaper (image &optional prefix)
-  "Set background IMAGE using `vex-image-viewer' binary.
-with universal argument PREFIX will prompt a second one,
+(defun set-wallpaper (image &optional args)
+  "Set background IMAGE using `vex-image-viewer'.
+With universal argument PREFIX will prompt a second one,
 asking for image viewer complementary args."
   ;; (interactive (list …)) → This is the most general way
   ;; to fill function arguments from user input.
@@ -136,36 +135,33 @@ asking for image viewer complementary args."
                     vex-image-dir
                     nil
                     t)
+
     ;; get current prefix argument (universal argument)
-    ;; optional!
-    current-prefix-arg))
+    (if current-prefix-arg
+        (read-string vex-image-viewer-args-prompt
+                     vex-image-viewer-args))))
   ;; body:
-  ;; get args if C-u (universal argument) was used
-  (let ((args (if prefix
-                  (read-string vex-image-viewer-args-prompt
-                               vex-image-viewer-args))))
-    ;; let body:
-    ;; conditions (switch/case equivalent)
-    (cond
-     ;; it is possible to execute vex-image-viewer program
-     ((not (executable-find vex-image-viewer))
-      (message "Program %s not executable" vex-image-viewer))
-     ;; verify if the file exists and it's a regular file
-     ((or (file-directory-p image) (not (file-exists-p image)))
-      (message "Image file %s not found" image))
-     ;; default call vex-image-viewer to set the wallpaper
-     (t
-      ;; Remember: In Elisp, you will often be better served by
-      ;; calling `start-process' directly, since it offers more
-      ;; control and does not impose the use of
-      ;; a shell (with its need to quote arguments).
-      ;; TODO: Research, it is really necessary to use start-process?
-      (async-shell-command
-       (format "%s %s %s %s"
-               vex-image-viewer
-               vex-image-viewer-options
-               args
-               image))))))
+  ;; conditions (switch/case equivalent)
+  (cond
+   ;; it is possible to execute vex-image-viewer program
+   ((not (executable-find vex-image-viewer))
+    (message "Program %s not executable" vex-image-viewer))
+   ;; verify if the file exists and it's a regular file
+   ((or (file-directory-p image) (not (file-exists-p image)))
+    (message "Image file %s not found" image))
+   ;; default call vex-image-viewer to set the wallpaper
+   (t
+    ;; Remember: In Elisp, you will often be better served by
+    ;; calling `start-process' directly, since it offers more
+    ;; control and does not impose the use of
+    ;; a shell (with its need to quote arguments).
+    ;; TODO: Research, it is really necessary to use start-process?
+    (async-shell-command
+     (format "%s %s %s %s"
+             vex-image-viewer
+             vex-image-viewer-options
+             (or args "")
+             image)))))
 
 ;;;###autoload
 (defun execute-file (file &optional prefix)
