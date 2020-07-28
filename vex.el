@@ -52,6 +52,8 @@
 (require 'simple)
 (require 'completion)
 (require 'replace)
+(require 'cl-seq)
+(require 'autoload)
 
 (defun safe-funcall (func &rest args)
   "Call FUNC with ARGS, if it's bounded."
@@ -99,9 +101,14 @@ The program will be stated if exists in \\[exec-path]."
       (start-process name nil program args)
     (message "Unable to start %s program, executable not found" program)))
 
+(defun safe-set-frame-font (font)
+  "Set the default font to FONT."
+  (cond ((find-font (font-spec :name font))
+         (set-frame-font font nil t))))
+
 ;;;###autoload
-(defun select-minibuffer-window ()
-  "Focus the active minibuffer, if available.
+(defun goto-minibuffer-window ()
+  "Go to the active minibuffer, if available.
 
 Bind this to `completion-list-mode-map' to easily jump
 between the list of candidates present in the \\*Completions\\*
@@ -112,13 +119,8 @@ buffer and the minibuffer."
     (when window
       (select-window window nil))))
 
-(defun safe-set-frame-font (font)
-  "Set the default font to FONT."
-  (cond ((find-font (font-spec :name font))
-         (set-frame-font font nil t))))
-
 ;;;###autoload
-(defun select-minibuffer-or-completions-window ()
+(defun goto-minibuffer-or-completions-window ()
   "Focus the active minibuffer or the \\*Completions\\*.
 
 If both the minibuffer and the Completions are present, this
@@ -165,6 +167,13 @@ If ARG is positive UP else DOWN."
       (insert text)
       ;; step 3: restore line position
       (forward-char (- orig end)))))
+
+(defun compile-at-dir (dir command)
+  "Compile passing COMMAND at DIR.
+Just a `compile' function wrapper."
+  (if (file-exists-p dir)
+      (let ((default-directory dir))
+        (compile command))))
 
 ;;;###autoload
 (defun indent-buffer ()
@@ -234,20 +243,6 @@ With prefix argument ARG, kill (copy) that many lines from point."
       (kill-line arg))))
 
 ;;;###autoload
-(defun copy-text-or-symbol-at-point ()
-  "Get the text in region or symbol at point.
-If region is active, return the text in that region.
-Else if the point is on a symbol, return that symbol name.
-Else return nil."
-  (interactive)
-  (cond ((use-region-p)
-         (buffer-substring-no-properties
-          (region-beginning) (region-end)))
-        ((symbol-at-point)
-         (substring-no-properties (thing-at-point 'symbol)))
-        (t nil)))
-
-;;;###autoload
 (defun back-to-indent-or-line (arg)
   "Move point back to indentation or beginning of line.
 With argument ARG not nil or 1, move forward ARG - 1 lines first."
@@ -268,8 +263,12 @@ With argument ARG not nil or 1, move forward ARG - 1 lines first."
   "Complete or indent."
   (interactive)
   (cond
-   ((looking-at "\\_>") (complete nil))
-   (t (indent-according-to-mode))))
+   ;; if char isn't a space or tab: complete
+   ((looking-at "\\_>")
+    (complete nil))
+   ;; default: indent
+   (t
+    (indent-according-to-mode))))
 
 ;;;###autoload
 (defun complete-at-point-or-indent ()
@@ -282,40 +281,50 @@ Or indents the current line."
 
   (interactive)
   (cond
+   ;; if minibuffer active: unless a valid completion:
+   ;; complete-symbol
    ((minibufferp)
     (unless (minibuffer-complete)
       (complete-symbol nil)))
-   (mark-active (indent-region (region-beginning) (region-end)))
-   ((looking-at "\\_>") (complete-symbol nil))
+   ;; if mark is active: indent region
+   (mark-active
+    (indent-region (region-beginning) (region-end)))
+   ;; if char isn't a space or tab: complete
+   ((looking-at "\\_>")
+    (complete-symbol nil))
+   ;; default: indent
    (t (indent-according-to-mode))))
 
 ;;;###autoload
 (defun switch-to-scratch ()
   "Switch to *scratch* buffer."
   (interactive)
-  (let ((buffer (get-buffer-create "*scratch*")))
+  (let ((buffer (get-buffer-create "*scratch*"))) ; scratch buffer or create
+    ;; write default message inside scratch buffer
     (with-current-buffer "*scratch*"
+      ;; if buffer size it's zero indicates new buffer
       (when (zerop (buffer-size))
         (insert (substitute-command-keys initial-scratch-message)))
+      ;; change mode to the initial-major-mode of choice
       (if (eq major-mode 'fundamental-mode)
           (funcall initial-major-mode)))
+    ;; finally switch to scratch buffer
     (switch-to-buffer buffer)))
 
 ;;;###autoload
 (defun byte-compile-current-file ()
   "Save and byte compile current file."
   (interactive)
+  ;; when the buffer is associate to a file
   (when buffer-file-name
-    (save-buffer)
-    (byte-compile-file buffer-file-name)))
-
-;;;###autoload
-(defun compile-at-dir (dir command)
-  "Compile passing COMMAND at DIR.
-Just a `compile' function wrapper."
-  (if (file-exists-p dir)
-      (let ((default-directory dir))
-        (compile command))))
+    (cond
+     ;; indicates if it's possible to byte-compile
+     ((eq major-mode 'emacs-lisp-mode)
+      ;; save the buffer before compile
+      (save-buffer)
+      (byte-compile-file buffer-file-name))
+     ;; default
+     (t (message "Was not possible to compile the file: %s" buffer-file-name)))))
 
 ;;;###autoload
 (defun occur-at-point ()
@@ -337,6 +346,47 @@ Just a `compile' function wrapper."
       (deactivate-mark))
      ;; default string, symbol
      (t (occur string)))))
+
+;;;###autoload
+(defun update-packages-autoloads (dir dest)
+  "Generate autoloads from a DIR and save in DEST file."
+  (interactive
+   (list
+    (read-directory-name "Dir: " nil nil t)
+    (read-string "File: ")))
+  (let ((dirs (nthcdr 2 (directory-files dir t)))
+        (generated-autoload-file (expand-file-name dest dir)))
+    ;; remove files that aren't directories
+    (setq dirs (cl-remove-if-not #'file-directory-p dirs))
+    ;; apply update-packages-autoloads using all dirs
+    (apply 'update-directory-autoloads dirs)))
+
+;;;###autoload
+(defun delete-file-at-point ()
+  "Delete file at point (filename or region)."
+  (interactive)
+  (let ;; get file at point
+      ((file (thing-at-point 'filename t)))
+    ;; switch/case equivalent
+    (cond
+     ;; case no file found: nothing to do,
+     ;; display a message and leave
+     ((eq file nil)
+      (message "No file at point was found"))
+     ;; case: file is a directory
+     ((file-directory-p file)
+      ;; deleting directories can be dangerous
+      ;; don't it at point
+      (message "File is a directory, use `delete-directory'"))
+     ;; case: file exist: delete it (asks for confirmation)
+     ((file-exists-p file)
+      (if (not (y-or-n-p (format "Delete file: %s ? " file)))
+          ;; no, just clean echo area
+          (message "")
+        ;; else, (yes): delete file and display message
+        (delete-file file)))
+     ;; default: call delete-file interactively
+     (t (message "File does not exists")))))
 
 (provide 'vex)
 ;;; vex.el ends here
