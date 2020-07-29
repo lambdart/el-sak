@@ -55,10 +55,11 @@
 (require 'cl-seq)
 (require 'autoload)
 
+;;;###autoload
 (defun safe-funcall (func &rest args)
   "Call FUNC with ARGS, if it's bounded."
   (when (fboundp func)
-    (funcall func args)))
+    (apply 'funcall func args)))
 
 (defun safe-kill-buffer (buffer-or-name)
   "Kill buffer specified by BUFFER-OR-NAME, if exists."
@@ -243,6 +244,14 @@ With prefix argument ARG, kill (copy) that many lines from point."
       (kill-line arg))))
 
 ;;;###autoload
+(defun kill-region-or-backward-word ()
+  "Kill region or `backward-kill-word'."
+  (interactive)
+  (if (region-active-p)
+      (kill-region (region-beginning) (region-end))
+    (backward-kill-word 1)))
+
+;;;###autoload
 (defun back-to-indent-or-line (arg)
   "Move point back to indentation or beginning of line.
 With argument ARG not nil or 1, move forward ARG - 1 lines first."
@@ -348,14 +357,14 @@ Or indents the current line."
      (t (occur string)))))
 
 ;;;###autoload
-(defun update-packages-autoloads (dir dest)
-  "Generate autoloads from a DIR and save in DEST file."
+(defun update-packages-autoloads (dir file)
+  "Generate autoloads from a DIR and save in FILE destination."
   (interactive
-   (list
-    (read-directory-name "Dir: " nil nil t)
-    (read-string "File: ")))
+    (let* ((dir (read-directory-name "Dir: " nil nil t))
+           (file (read-file-name "File: " dir nil 'confirm)))
+      (list dir file)))
   (let ((dirs (nthcdr 2 (directory-files dir t)))
-        (generated-autoload-file (expand-file-name dest dir)))
+        (generated-autoload-file (expand-file-name file dir)))
     ;; remove files that aren't directories
     (setq dirs (cl-remove-if-not #'file-directory-p dirs))
     ;; apply update-packages-autoloads using all dirs
