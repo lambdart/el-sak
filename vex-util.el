@@ -1,4 +1,4 @@
-;;; vex.el --- vanilla Emacs extensions -*- lexical-binding: t -*-
+;;; vex-util.el --- vanilla Emacs extensions -*- lexical-binding: t -*-
 ;;
 ;; Author: esac <esac-io@tutanota.com>
 ;; Version: 0.1
