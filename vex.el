@@ -55,7 +55,6 @@
 (require 'cl-seq)
 (require 'autoload)
 
-;;;###autoload
 (defun safe-funcall (func &rest args)
   "Call FUNC with ARGS, if it's bounded."
   (when (fboundp func)
@@ -169,6 +168,7 @@ If ARG is positive UP else DOWN."
       ;; step 3: restore line position
       (forward-char (- orig end)))))
 
+;;;###autoload
 (defun compile-at-dir (dir command)
   "Compile passing COMMAND at DIR.
 Just a `compile' function wrapper."
