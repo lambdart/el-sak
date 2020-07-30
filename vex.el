@@ -55,20 +55,6 @@
 (require 'cl-seq)
 (require 'autoload)
 
-(defun safe-funcall (func &rest args)
-  "Call FUNC with ARGS, if it's bounded."
-  (when (fboundp func)
-    (apply 'funcall func args)))
-
-(defun safe-kill-buffer (buffer-or-name)
-  "Kill buffer specified by BUFFER-OR-NAME, if exists."
-  (unless (or (stringp buffer-or-name)
-              (bufferp buffer-or-name))
-    (error "`buffer-or-name' must be a string or a buffer object"))
-  (let ((buffer (get-buffer buffer-or-name)))
-    (when (buffer-live-p buffer)
-      (kill-buffer buffer))))
-
 (defun safe-load-file (file)
   "Load FILE if exists."
   (if (file-exists-p file)
@@ -89,11 +75,28 @@
       (unless (member dir load-path)
         (push dir load-path)))))
 
+(defun safe-kill-buffer (buffer-or-name)
+  "Kill buffer specified by BUFFER-OR-NAME, if exists."
+  (unless (or (stringp buffer-or-name)
+              (bufferp buffer-or-name))
+    (error "`buffer-or-name' must be a string or a buffer object"))
+  (let ((buffer (get-buffer buffer-or-name)))
+    (when (buffer-live-p buffer)
+      (kill-buffer buffer))))
+
+;;;###autoload
+(defun safe-funcall (func &rest args)
+  "Call FUNC with ARGS, if it's bounded."
+  (when (fboundp func)
+    (apply 'funcall func args)))
+
+;;;###autoload
 (defun safe-mkdir (dir)
   "Create DIR in the file system."
   (when (and (not (file-exists-p dir))
              (make-directory dir :parents))))
 
+;;;###autoload
 (defun safe-start-process (name program args)
   "Just a `start-process' function wrapper.
 The program will be stated if exists in \\[exec-path]."
@@ -101,6 +104,7 @@ The program will be stated if exists in \\[exec-path]."
       (start-process name nil program args)
     (message "Unable to start %s program, executable not found" program)))
 
+;;;###autoload
 (defun safe-set-frame-font (font)
   "Set the default font to FONT."
   (cond ((find-font (font-spec :name font))
@@ -369,6 +373,40 @@ Or indents the current line."
     (setq dirs (cl-remove-if-not #'file-directory-p dirs))
     ;; apply update-packages-autoloads using all dirs
     (apply 'update-directory-autoloads dirs)))
+
+;;;###autoload
+(defun execute-file (executable &optional args)
+  "Execute arbitrary EXECUTABLE file using `start-process'.
+
+If \\[universal-argument] is used, display a secondary
+prompt asking for additional ARGS - arguments."
+
+  (interactive
+   (list
+    ;; get executable file
+    (read-file-name "File: " nil nil t)
+    ;; get arguments, if prefix - \\[universal-argument] - was used
+    (if current-prefix-arg
+        (read-string "Args: "))))
+  (let* (
+         ;; set only the file name (remove full path)
+         (name (file-name-nondirectory executable))
+         ;; set default directory
+         (default-directory (file-name-directory executable))
+         ;; use a pipe, or t to use a pty
+         (process-connection-type t))
+    (cond
+     ;; test if file is a directory
+     ((file-directory-p executable)
+      (message "Directories are not executable files"))
+     ;; test if its not possible to access the directory
+     ((not (file-accessible-directory-p default-directory))
+      (message "Directory not accessible"))
+     ;; test if the file is a executable
+     ((file-executable-p executable)
+      (apply 'start-process name nil executable args))
+     ;; default, not a executable file
+     (t (message "File %s is not executable" name)))))
 
 ;;;###autoload
 (defun delete-file-at-point ()
