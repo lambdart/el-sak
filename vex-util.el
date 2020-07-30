@@ -42,12 +42,6 @@
   :group 'extensions
   :group 'convenience)
 
-(defcustom vex-opacity-prompt "Opacity: "
-  "Opacity prompt string."
-  :type 'string
-  :group 'vex-util
-  :safe t)
-
 (defcustom vex-opacity .9
   "Opacity default value.
 The opacity value is a number from 0 to 1,
@@ -75,24 +69,6 @@ It lets the user set the transparency on a window."
   :group 'vex-util
   :safe t)
 
-(defcustom vex-image-viewer-prompt "Image: "
-  "Image prompt string."
-  :type 'string
-  :group 'vex-util
-  :safe t)
-
-(defcustom vex-file-prompt "File: "
-  "File prompt string."
-  :type 'string
-  :group 'vex-util
-  :safe t)
-
-(defcustom vex-args-prompt "Args: "
-  "File prompt string."
-  :type 'string
-  :group 'vex-util
-  :safe t)
-
 (defcustom vex-image-viewer-options "--bg-fill"
   "Options for the `vex-image-viewer' program."
   :type 'string
@@ -105,9 +81,41 @@ It lets the user set the transparency on a window."
   :group 'vex-util
   :safe t)
 
-(defcustom vex-image-dir (expand-file-name "~/media/images/wallpapers")
+(defcustom vex-image-dir
+  (expand-file-name "~/media/images/wallpapers")
   "Options for the `vex-image-viewer' program."
   :type 'string
+  :group 'vex-util
+  :safe t)
+
+(defcustom vex-image-viewer "feh"
+  "An Image viewer program."
+  :type 'string
+  :group 'vex-util
+  :safe t)
+
+(defcustom vex-scrot "scrot"
+  "Screen capture utility."
+  :type 'string
+  :group 'vex-util
+  :safe t)
+
+(defcustom vex-scrot-dir
+  (expand-file-name "scrot" user-emacs-directory)
+  "Where to put screen capture images."
+  :type 'string
+  :group 'vex-util
+  :safe t)
+
+(defcustom vex-mixer "mixer"
+  "Mixer – set/display soundcard mixer values."
+  :type 'string
+  :group 'vex-util
+  :safe t)
+
+(defcustom vex-mixer-factor 5
+  "Volume factor."
+  :type 'integer
   :group 'vex-util
   :safe t)
 
@@ -115,7 +123,7 @@ It lets the user set the transparency on a window."
 (defun set-frame-transparency (&optional opacity)
   "Set OPACITY transparency in current frame."
   (interactive
-   (list (read-number vex-opacity-prompt vex-opacity)))
+   (list (read-number "Opacity: " vex-opacity)))
   (if (executable-find vex-transset)
       (async-shell-command
        (format "%s %s %.1f"
@@ -127,8 +135,8 @@ It lets the user set the transparency on a window."
 ;;;###autoload
 (defun set-wallpaper (image &optional args)
   "Set background IMAGE using `vex-image-viewer'.
-With universal argument PREFIX will prompt a second one,
-asking for image viewer complementary args."
+With \\[universal-argument]] prompt a secondary one,
+asking for image viewer complementary ARGS - arguments."
   ;; (interactive (list …)) → This is the most general way
   ;; to fill function arguments from user input.
   ;; This list elements will be passed as arguments to your function.
@@ -137,14 +145,14 @@ asking for image viewer complementary args."
   (interactive
    (list
     ;; get image file
-    (read-file-name vex-image-viewer-prompt
+    (read-file-name "Image: "
                     vex-image-dir
                     nil
                     t)
 
     ;; get current prefix argument (universal argument)
     (if current-prefix-arg
-        (read-string vex-args-prompt
+        (read-string "Args: "
                      vex-image-viewer-args))))
   ;; body:
   ;; conditions (switch/case equivalent)
@@ -169,39 +177,79 @@ asking for image viewer complementary args."
              (or args "")
              image)))))
 
-;;;###autoload
-(defun execute-file (executable &optional args)
-  "Execute arbitrary EXECUTABLE file using `start-process'.
-
-If \\[universal-argument] is used, display a secondary
-prompt asking for additional ARGS - arguments."
-
+(defun capture-screen (&optional dest)
+  "Capture screen (an image) and save at DEST directory."
   (interactive
    (list
-    ;; get executable file
-    (read-file-name vex-file-prompt nil nil t)
-    ;; get arguments, if prefix - \\[universal-argument] - was used
-    (if current-prefix-arg
-        (read-string vex-args-prompt nil nil nil))))
-  (let* (
-         ;; set only the file name (remove full path)
-         (name (file-name-nondirectory executable))
-         ;; set default directory
-         (default-directory (file-name-directory executable))
-         ;; use a pipe, or t to use a pty
-         (process-connection-type t))
+    ;; if prefix, read directory name
+    (when current-prefix-arg
+      (read-directory-name
+       "Dir: " nil default-directory t))))
+  ;; body:
+  (let ((default-directory (expand-file-name
+                            (or dest vex-scrot-dir)))
+        (scrot (executable-find vex-scrot)))
     (cond
-     ;; test if file is a directory
-     ((file-directory-p executable)
-      (message "Directories are not executable files"))
-     ;; test if its not possible to access the directory
-     ((not (file-accessible-directory-p default-directory))
-      (message "Directory not accessible"))
-     ;; test if the file is a executable
-     ((file-executable-p executable)
-      (apply 'start-process name (concat "*" name "*") executable args))
-     ;; default, not a executable file
-     (t (message "File %s is not executable" name)))))
+     ;; if screen capture utility
+     (scrot
+      (funcall 'start-process scrot nil scrot)
+      (message "Image saved at %s" default-directory))
+     ;; default
+     (t
+      (message "Command %s not found" vex-scrot)))))
+
+;;;###autoload
+(defun set-volume (value &optional direction)
+  "Set volume VALUE in up or down DIRECTION."
+  (interactive
+   (list
+    (read-number "Volume: " 50)))
+  (let* ((mixer (executable-find vex-mixer))
+         (direction (or direction :set))
+         (cmd (cond
+               ((eq direction :up)   (format "%s vol +%d" mixer value))
+               ((eq direction :down) (format "%s vol -%d" mixer value))
+               ((eq direction :set)  (format "%s vol %d" mixer value))
+               ;; nop equivalent for this operation
+               (t (format "%s vol -0" mixer)))))
+         (cond
+          ;; case mixer: raise volume
+          (mixer
+           (async-shell-command cmd))
+          ;; default
+          (t (message "Mixer command not found")))))
+
+;;;###autoload
+(defun increase-volume (&optional n)
+  "Increase volume by a factor of 5.
+If \\[universal-argument] is used, display a prompt
+asking for the volume value - N."
+  (interactive
+   (list
+    (when current-prefix-arg
+      (read-number "Factor: " 5))))
+  (let ((factor (or n vex-mixer-factor)))
+    (set-volume factor :up)
+    (message "Volume raised: +%d" factor)))
+
+;;;###autoload
+(defun lower-volume (&optional n)
+  "Lower volume by a factor of 5.
+If \\[universal-argument] is used, display a prompt
+asking for the volume value - N."
+  (interactive
+   (list
+    (when current-prefix-arg
+      (read-number "Factor: " 5))))
+  (let ((factor (or n vex-mixer-factor)))
+    (set-volume factor :down)
+    (message "Volume lower: -%d" factor)))
+
+;;;###autoload
+(defun mute-audio ()
+    "Mute volume."
+    (interactive)
+    (set-volume 0 :set))
 
 (provide 'vex-util)
 ;;; vex-util.el ends here
