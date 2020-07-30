@@ -75,14 +75,20 @@ It lets the user set the transparency on a window."
   :group 'vex-util
   :safe t)
 
-(defcustom vex-image-viewer-prompt "Image file: "
+(defcustom vex-image-viewer-prompt "Image: "
   "Image prompt string."
   :type 'string
   :group 'vex-util
   :safe t)
 
-(defcustom vex-image-viewer-args-prompt "Args: "
-  "Image viewer args prompt string."
+(defcustom vex-file-prompt "File: "
+  "File prompt string."
+  :type 'string
+  :group 'vex-util
+  :safe t)
+
+(defcustom vex-args-prompt "Args: "
+  "File prompt string."
   :type 'string
   :group 'vex-util
   :safe t)
@@ -138,7 +144,7 @@ asking for image viewer complementary args."
 
     ;; get current prefix argument (universal argument)
     (if current-prefix-arg
-        (read-string vex-image-viewer-args-prompt
+        (read-string vex-args-prompt
                      vex-image-viewer-args))))
   ;; body:
   ;; conditions (switch/case equivalent)
@@ -164,32 +170,36 @@ asking for image viewer complementary args."
              image)))))
 
 ;;;###autoload
-(defun execute-file (file &optional prefix)
-  "Execute arbitrary FILE using `start-process'.
-If PREFIX \\[universal-argument] was used,
-display a secondary prompt for additional arguments."
-  ;; f - a valid file, P - raw prefix
-  (interactive "fFile: \nP")
+(defun execute-file (executable &optional args)
+  "Execute arbitrary EXECUTABLE file using `start-process'.
+
+If \\[universal-argument] is used, display a secondary
+prompt asking for additional ARGS - arguments."
+
+  (interactive
+   (list
+    ;; get executable file
+    (read-file-name vex-file-prompt nil nil t)
+    ;; get arguments, if prefix - \\[universal-argument] - was used
+    (if current-prefix-arg
+        (read-string vex-args-prompt nil nil nil))))
   (let* (
          ;; set only the file name (remove full path)
-         (name (file-name-nondirectory file))
+         (name (file-name-nondirectory executable))
          ;; set default directory
-         (default-directory (file-name-directory file))
+         (default-directory (file-name-directory executable))
          ;; use a pipe, or t to use a pty
-         (process-connection-type t)
-         ;; if prefix set arguments string
-         (args (if prefix
-                   (split-string (read-string "Args: ")))))
+         (process-connection-type t))
     (cond
      ;; test if file is a directory
-     ((file-directory-p file)
+     ((file-directory-p executable)
       (message "Directories are not executable files"))
      ;; test if its not possible to access the directory
      ((not (file-accessible-directory-p default-directory))
       (message "Directory not accessible"))
      ;; test if the file is a executable
-     ((file-executable-p file)
-      (apply 'start-process name (concat "*" name "*") file args))
+     ((file-executable-p executable)
+      (apply 'start-process name (concat "*" name "*") executable args))
      ;; default, not a executable file
      (t (message "File %s is not executable" name)))))
 
