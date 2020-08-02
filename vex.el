@@ -54,6 +54,7 @@
 (require 'replace)
 (require 'cl-seq)
 (require 'autoload)
+(require 'delsel)
 
 (defun safe-load-file (file)
   "Load FILE if exists."
@@ -85,7 +86,7 @@
       (kill-buffer buffer))))
 
 ;;;###autoload
-(defun safe-funcall (func &rest args)
+(defun safe-funcall (func args)
   "Call FUNC with ARGS, if it's bounded."
   (when (fboundp func)
     (apply 'funcall func args)))
@@ -364,9 +365,9 @@ Or indents the current line."
 (defun update-packages-autoloads (dir file)
   "Generate autoloads from a DIR and save in FILE destination."
   (interactive
-    (let* ((dir (read-directory-name "Dir: " nil nil t))
-           (file (read-file-name "File: " dir nil 'confirm)))
-      (list dir file)))
+   (let* ((dir (read-directory-name "Dir: " nil nil t))
+          (file (read-file-name "File: " dir nil 'confirm)))
+     (list dir file)))
   (let ((dirs (nthcdr 2 (directory-files dir t)))
         (generated-autoload-file (expand-file-name file dir)))
     ;; remove files that aren't directories
@@ -388,13 +389,13 @@ prompt asking for additional ARGS - arguments."
     ;; get arguments, if prefix - \\[universal-argument] - was used
     (if current-prefix-arg
         (read-string "Args: "))))
-  (let* (
-         ;; set only the file name (remove full path)
-         (name (file-name-nondirectory executable))
-         ;; set default directory
-         (default-directory (file-name-directory executable))
-         ;; use a pipe, or t to use a pty
-         (process-connection-type t))
+  (let*
+      ;; set only the file name (remove full path)
+      ((name (file-name-nondirectory executable))
+       ;; set default directory
+       (default-directory (file-name-directory executable))
+       ;; use a pipe, or t to use a pty
+       (process-connection-type t))
     (cond
      ;; test if file is a directory
      ((file-directory-p executable)
@@ -434,6 +435,15 @@ prompt asking for additional ARGS - arguments."
         (delete-file file)))
      ;; default: call delete-file interactively
      (t (message "File does not exists")))))
+
+;;;###autoload
+(defun force-minibuffer-exit ()
+  "Force `minibuffer' to exit."
+  (interactive)
+  (let ((minibuffer (active-minibuffer-window)))
+    (when minibuffer
+      (select-window minibuffer)
+      (funcall 'minibuffer-keyboard-quit))))
 
 (provide 'vex)
 ;;; vex.el ends here
