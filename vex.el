@@ -125,6 +125,14 @@ buffer and the minibuffer."
       (select-window window nil))))
 
 ;;;###autoload
+(defun goto-completions-window ()
+  "Go to the active completions window, if available."
+  (interactive)
+  (let ((window (get-buffer-window "*Completions*")))
+    (when window
+      (select-window window nil))))
+
+;;;###autoload
 (defun goto-minibuffer-or-completions-window ()
   "Focus the active minibuffer or the \\*Completions\\*.
 
@@ -316,7 +324,7 @@ Or indents the current line."
   (let ((buffer (get-buffer-create "*scratch*"))) ; scratch buffer or create
     ;; write default message inside scratch buffer
     (with-current-buffer "*scratch*"
-      ;; if buffer size it's zero indicates new buffer
+      ;; if buffer size is zero indicates new buffer
       (when (zerop (buffer-size))
         (insert (substitute-command-keys initial-scratch-message)))
       ;; change mode to the initial-major-mode of choice
@@ -444,6 +452,14 @@ prompt asking for additional ARGS - arguments."
     (when minibuffer
       (select-window minibuffer)
       (funcall 'minibuffer-keyboard-quit))))
+
+;;;###autoload
+(defun describe-symbol-at-point ()
+  "Describe symbol at point."
+  (interactive)
+  (let ((symbol (symbol-at-point)))
+    (when symbol
+      (describe-symbol symbol))))
 
 (provide 'vex)
 ;;; vex.el ends here
