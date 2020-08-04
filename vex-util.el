@@ -94,15 +94,21 @@ It lets the user set the transparency on a window."
   :group 'vex-util
   :safe t)
 
+(defcustom vex-slock "slock"
+  "Command line screen locker utility."
+  :type 'string
+  :group 'vex-util
+  :safe t)
+
 (defcustom vex-scrot "scrot"
-  "Screen capture utility."
+  "Command line screen capture utility."
   :type 'string
   :group 'vex-util
   :safe t)
 
 (defcustom vex-scrot-dir
   (expand-file-name "scrot" user-emacs-directory)
-  "Where to put screen capture images."
+  "Where to put captured screen images."
   :type 'string
   :group 'vex-util
   :safe t)
@@ -197,6 +203,14 @@ asking for image viewer complementary ARGS - arguments."
      ;; default
      (t
       (message "Command %s not found" vex-scrot)))))
+
+;;;###autoload
+(defun lock-screen ()
+  "Lock screen using `vex-slock' utility."
+  (interactive)
+  (if (not (executable-find vex-slock))
+      (message "Command %s not found" vex-slock)
+    (async-shell-command vex-slock)))
 
 ;;;###autoload
 (defun set-volume (value &optional direction)
