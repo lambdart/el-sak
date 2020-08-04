@@ -1,4 +1,7 @@
-#+AUTHOR: esac <esac-io@tutanota.com>
+#+TITLE: Vex
+#+AUTHOR: esac
+#+EMAIL: esac-io@tutanota.com
+#+DESCRIPTION: little hacks for vanilla Emacs
 #+PROPERTY: header-args :tangle no
 
 * Introduction
@@ -8,28 +11,20 @@
   =Emacs= overall usability keeping everything more organized
   and easy to manage.
 
-  The =VEX= name was inspired by =[V]anilla [EX]tensions=.
+  The =VEX= is a abbreviation for =[V]anilla [E]macs E[X]tensions=.
 
 * Overview
 
-  On =Emacs= every user is also a developer, we twist and extend
+  On =Emacs= every user also is a developer, we twist and extend
   your programmable platform to meet our needs,
   to automatize boring tasks, to become more productive -
-  using smart data/stream transformations to quickly analyse data
-  and processes of interest, and more, much more!
+  using smart data transformations to quickly create new
+  features, analyse data and processes of interest,
+  and more, much more!
 
   This is probably a continuum for the =Emacs= user life spam,
   =forever= an =user developer=, taking more and more control,
   engaging our manipulative capabilities all day long.
-
-  Usually, people accomplish this directly in the configuration files -
-  ~init.el, .emacs~, etc.. - as the =Elisp= interpreter do not
-  differentiate them at all - remember, an =Elisp= script is a sequence
-  of declared =Forms= to be evaluated, doesn't matter the intent of it.
-
-  Although, the generic aspect of it is great, we have something too
-  flexible in your hands and things can be out of control really
-  quickly if organization isn't one of our concerns.
 
   So, that's why =Vex= was created to pull all this new functions
   that depends only on the builtin functionalities of =Emacs= in
