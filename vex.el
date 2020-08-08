@@ -48,13 +48,18 @@
 ;;
 ;;; Code:
 
+(require 'delsel)
 (require 'files)
 (require 'simple)
+(require 'recentf)
 (require 'completion)
 (require 'replace)
-(require 'cl-seq)
 (require 'autoload)
-(require 'delsel)
+(require 'compile)
+(require 'cl-seq)
+
+(eval-when-compile
+  (require 'cl-macs))
 
 (defun safe-load-file (file)
   "Load FILE if exists."
@@ -289,8 +294,7 @@ With argument ARG not nil or 1, move forward ARG - 1 lines first."
    ((looking-at "\\_>")
     (complete nil))
    ;; default: indent
-   (t
-    (indent-according-to-mode))))
+   (t (indent-according-to-mode))))
 
 ;;;###autoload
 (defun complete-at-point-or-indent ()
@@ -349,27 +353,6 @@ Or indents the current line."
      (t (message "Was not possible to compile the file: %s" buffer-file-name)))))
 
 ;;;###autoload
-(defun occur-at-point ()
-  "Occur with symbol or region as its arguments."
-  (interactive)
-  (let*
-      ;; get region or symbol
-      ((bounds (if (use-region-p)
-                   (cons (region-beginning) (region-end))
-                 (bounds-of-thing-at-point 'symbol)))
-       ;; get string
-       (string (unless bounds
-                 (read-string "Occur: "))))
-    (cond
-     ;; region
-     (bounds
-      (occur (buffer-substring-no-properties
-              (car bounds) (cdr bounds)))
-      (deactivate-mark))
-     ;; default string, symbol
-     (t (occur string)))))
-
-;;;###autoload
 (defun update-packages-autoloads (dir file)
   "Generate autoloads from a DIR and save in FILE destination."
   (interactive
@@ -418,6 +401,36 @@ prompt asking for additional ARGS - arguments."
      (t (message "File %s is not executable" name)))))
 
 ;;;###autoload
+(defun force-minibuffer-exit ()
+  "Force `minibuffer' to exit."
+  (interactive)
+  (let ((minibuffer (active-minibuffer-window)))
+    (when minibuffer
+      (select-window minibuffer)
+      (funcall 'minibuffer-keyboard-quit))))
+
+;;;###autoload
+(defun occur-at-point ()
+  "Occur with symbol or region as its arguments."
+  (interactive)
+  (let*
+      ;; get region or symbol
+      ((bounds (if (use-region-p)
+                   (cons (region-beginning) (region-end))
+                 (bounds-of-thing-at-point 'symbol)))
+       ;; get string
+       (string (unless bounds
+                 (read-string "Occur: "))))
+    (cond
+     ;; region
+     (bounds
+      (occur (buffer-substring-no-properties
+              (car bounds) (cdr bounds)))
+      (deactivate-mark))
+     ;; default string, symbol
+     (t (occur string)))))
+
+;;;###autoload
 (defun delete-file-at-point ()
   "Delete file at point (filename or region)."
   (interactive)
@@ -445,21 +458,98 @@ prompt asking for additional ARGS - arguments."
      (t (message "File does not exists")))))
 
 ;;;###autoload
-(defun force-minibuffer-exit ()
-  "Force `minibuffer' to exit."
-  (interactive)
-  (let ((minibuffer (active-minibuffer-window)))
-    (when minibuffer
-      (select-window minibuffer)
-      (funcall 'minibuffer-keyboard-quit))))
-
-;;;###autoload
 (defun describe-symbol-at-point ()
   "Describe symbol at point."
   (interactive)
   (let ((symbol (symbol-at-point)))
     (when symbol
       (describe-symbol symbol))))
+
+(defun recentf-candidates ()
+  "Get recent files candidates."
+  (mapcar 'abbreviate-file-name recentf-list))
+
+;;;###autoload
+(defun recentf-find-file ()
+  "Find recent file."
+  (interactive)
+  (let ((candidate
+         (completing-read "Recentf: "
+                          (recentf-candidates) nil t)))
+    ;; find files
+    (find-file candidate)))
+
+(defun kill-ring-candidates ()
+  "Return `kill-ring' candidates."
+  (let ((candidates
+         (cl-loop with candidates = (delete-dups kill-ring)
+                  for c in candidates
+                  unless (or (< (length c) 4)
+                             (string-match "\\`[\n[:blank:]]+\\'" c))
+                  collect c)))
+    candidates))
+
+;;;###autoload
+(defun insert-kill-ring ()
+  "Insert text from `kill-ring' candidates."
+  (interactive)
+  (let ((candidates (kill-ring-candidates)))
+    (if (not candidates)
+        (message "Kill ring is empty"))
+    (insert
+     (completing-read "Kill-ring: " candidates nil t))))
+
+;;;###autoload
+(defun compile-history ()
+  "Compile using `compile-history' as candidates."
+  (interactive)
+  (let ((candidates compile-history))
+    (compile
+     (completing-read "Command: "
+                      candidates nil 'confirm "" `(compile-history)))))
+
+(defun parse-mark-line-to-string (pos)
+  "Return line string at position POS."
+  (save-excursion
+    (goto-char pos)
+    (forward-line 0)
+    (let ((line (car (split-string (thing-at-point 'line) "[\n\r]"))))
+      (remove-text-properties 0 (length line) '(read-only) line)
+      (if (string= "" line)
+          "<EMPTY LINE>"
+        line))))
+
+(defun mark-ring-candidates ()
+  "Return parsed mark ring candidates."
+  (cl-loop with marks = (if (mark t)
+                            (cons (mark-marker) mark-ring)
+                          mark-ring)
+           for mark in marks
+           with max-line-number = (line-number-at-pos (point-max))
+           with width = (length (number-to-string max-line-number))
+           for m = (format (concat "%" (number-to-string width) "d: %s")
+                           (line-number-at-pos mark)
+                           (parse-mark-line-to-string mark))
+           unless (and recip (assoc m recip))
+           collect (cons m mark) into recip
+           finally return recip))
+
+;;;###autoload
+(defun mark-goto-char ()
+  "Browse `mark-ring' interactively and jump to the selected position."
+  (interactive)
+  (let ((candidates (mark-ring-candidates))
+        (position nil))
+    (cond
+     ;; if not candidates nothing to do, logs
+     ;; and leave
+     ((not candidates)
+      (message "Mark ring is empty"))
+     ;; else goto position
+     (t
+      (setq position
+            (completing-read "Goto: " candidates nil t))
+      (goto-char (cdr (assoc position candidates)))))))
 
 (provide 'vex)
 ;;; vex.el ends here
