@@ -75,14 +75,14 @@ It lets the user set the transparency on a window."
   :group 'vex-util
   :safe t)
 
-(defcustom vex-image-viewer-args "-g +0-0"
+(defcustom vex-image-viewer-args "-g +0+0"
   "An Image viewer default args."
   :type 'string
   :group 'vex-util
   :safe t)
 
 (defcustom vex-image-dir
-  (expand-file-name "~/media/images/wallpapers")
+  (expand-file-name "~/media/images/wallpapers/")
   "Options for the `vex-image-viewer' program."
   :type 'string
   :group 'vex-util
@@ -226,12 +226,12 @@ asking for image viewer complementary ARGS - arguments."
                ((eq direction :set)  (format "%s vol %d" mixer value))
                ;; nop equivalent for this operation
                (t (format "%s vol -0" mixer)))))
-         (cond
-          ;; case mixer: raise volume
-          (mixer
-           (async-shell-command cmd))
-          ;; default
-          (t (message "Mixer command not found")))))
+    (cond
+     ;; case mixer: raise volume
+     (mixer
+      (async-shell-command cmd))
+     ;; default
+     (t (message "Mixer command not found")))))
 
 ;;;###autoload
 (defun increase-volume (&optional n)
@@ -261,9 +261,34 @@ asking for the volume value - N."
 
 ;;;###autoload
 (defun mute-audio ()
-    "Mute volume."
-    (interactive)
-    (set-volume 0 :set))
+  "Mute volume."
+  (interactive)
+  (set-volume 0 :set))
+
+;;autoload
+(defun export-pdf-to-text (pdf txt)
+  "Convert a PDF to TXT file.
+
+When \\[universal-argument] is used, asks for the
+text file output name."
+
+  ;; map function arguments
+  (interactive
+   (list
+    (read-file-name "File:" nil nil t)
+    (when current-prefix-arg
+      (read-file-name "Fout:" nil nil))))
+  ;; set auxiliary params
+  (let* ((file (expand-file-name pdf))
+         (fout (if (not txt) nil (expand-file-name txt)))
+         (cmd (format "pdftotext '%s'" file)))
+    ;; verify if file exists
+    (when (file-exists-p file)
+      ;; parse output file if necessary
+      (if fout
+          (setq cmd (concat cmd (format " '%s'" fout))))
+      ;; finally execute pdftotext
+    (async-shell-command cmd))))
 
 (provide 'vex-util)
 ;;; vex-util.el ends here
