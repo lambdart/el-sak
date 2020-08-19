@@ -265,7 +265,7 @@ asking for the volume value - N."
   (interactive)
   (set-volume 0 :set))
 
-;;autoload
+;;;###autoload
 (defun export-pdf-to-text (pdf txt)
   "Convert a PDF to TXT file.
 
@@ -287,8 +287,8 @@ text file output name."
       ;; parse output file if necessary
       (if fout
           (setq cmd (concat cmd (format " '%s'" fout))))
-      ;; finally execute pdftotext
-    (async-shell-command cmd))))
+      ;; finally execute pdftotext command
+      (async-shell-command cmd))))
 
 (provide 'vex-util)
 ;;; vex-util.el ends here
