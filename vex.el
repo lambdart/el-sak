@@ -56,7 +56,8 @@
 (require 'replace)
 (require 'autoload)
 (require 'compile)
-(require 'cl-seq)
+o(require 'cl-seq)
+(require 'subr-x)
 
 (eval-when-compile
   (require 'cl-macs))
@@ -487,26 +488,6 @@ prompt asking for additional ARGS - arguments."
     ;; find files
     (find-file candidate)))
 
-(defun kill-ring-candidates ()
-  "Return `kill-ring' candidates."
-  (let ((candidates
-         (cl-loop with candidates = (delete-dups kill-ring)
-                  for c in candidates
-                  unless (or (< (length c) 4)
-                             (string-match "\\`[\n[:blank:]]+\\'" c))
-                  collect c)))
-    candidates))
-
-;;;###autoload
-(defun insert-kill-ring ()
-  "Insert text from `kill-ring' candidates."
-  (interactive)
-  (let ((candidates (kill-ring-candidates)))
-    (if (not candidates)
-        (message "Kill ring is empty"))
-    (insert
-     (completing-read "Kill-ring: " candidates nil t))))
-
 ;;;###autoload
 (defun compile-history ()
   "Compile using `compile-history' as candidates."
@@ -547,7 +528,9 @@ prompt asking for additional ARGS - arguments."
   "Execute a command from `command-history-candidates'."
   (interactive)
   (let ((command
-         (completing-read "M-x " (command-history-candidates))))
+         (completing-read
+          "C-x C-c "
+          (command-history-candidates) nil 'corfirm "(")))
     (save-restriction
       (eval (read command)))))
 
