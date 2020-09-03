@@ -190,9 +190,9 @@ If ARG is positive UP else DOWN."
 (defun compile-at-dir (dir command)
   "Compile passing COMMAND at DIR.
 Just a `compile' function wrapper."
-  (if (file-exists-p dir)
-      (let ((default-directory dir))
-        (compile command))))
+  (when (file-directory-p dir)
+    (let ((default-directory dir))
+      (compile command))))
 
 ;;;###autoload
 (defun indent-buffer ()
@@ -215,18 +215,26 @@ Just a `compile' function wrapper."
 If there's no region, the current line will be duplicated.
 Otherwise, its lines will be duplicated."
   (interactive "p")
-  (let ((beg (line-beginning-position))
-        (end (line-end-position))
-        (i (or n 1)))
-    (when (region-active-p)
-      (setq beg (region-beginning)
-            end (region-end)))
-    (let ((region (buffer-substring-no-properties beg end)))
-      (while (> i 0)
-        (goto-char end)
-        (newline)
-        (insert region)
-        (setq i (1- i))))))
+  (save-mark-and-excursion
+    (let ((beg (line-beginning-position))
+          (end (line-end-position))
+          (i (or n 1)))
+      (when (region-active-p)
+        ;; update region positions
+        (setq beg (region-beginning)
+              end (region-end)))
+      (let ((region (buffer-substring beg end)))
+        (while (> i 0)
+          (goto-char (line-end-position))
+          (newline)
+          (insert region)
+          (setq i (1- i)))))))
+
+;; restore region if necessary
+;; (when (region-active-p)
+;;   (goto-char beg)
+;;   (push-mark end)
+;;   (setq mark-active t))))
 
 ;;;###autoload
 (defun transpose-lines-up ()
@@ -503,10 +511,45 @@ prompt asking for additional ARGS - arguments."
 (defun compile-history ()
   "Compile using `compile-history' as candidates."
   (interactive)
-  (let ((candidates compile-history))
-    (compile
-     (completing-read "Command: "
-                      candidates nil 'confirm "" `(compile-history)))))
+  (let* ((candidates compile-history)
+         (compile-command
+          (completing-read "Command: "
+                           candidates nil
+                           'confirm
+                           ""
+                           `(compile-history))))
+    (when (not (string-empty-p compile-command))
+      (compile compile-command))))
+
+(defun command-history-candidates ()
+  "Return \\[command-history] string candidates."
+  (let* ((size (length command-history))
+         (commands (split-string (prin1-to-string command-history) ") "))
+         (command (nth 0 commands))
+         (candidates nil)
+         (i 1))
+    ;; process first one
+    (setq command (concat (substring command 1 (length command)) ")"))
+    (setf candidates (cons command candidates))
+    ;; process the 'middle' ones
+    (while (< i size)
+      (setq command (concat (nth i commands) ")"))
+      (setf candidates (cons command candidates))
+      (setq i (+ i 1)))
+    ;; process last one
+    (setq command (nth (- size 1) commands)
+          command (substring command 0 (- (length command) 1)))
+    (setf candidates (cons command candidates))
+    candidates))
+
+;;;###autoload
+(defun execute-command-history ()
+  "Execute a command from `command-history-candidates'."
+  (interactive)
+  (let ((command
+         (completing-read "M-x " (command-history-candidates))))
+    (save-restriction
+      (eval (read command)))))
 
 (defun parse-mark-line-to-string (pos)
   "Return line string at position POS."
