@@ -56,7 +56,7 @@
 (require 'replace)
 (require 'autoload)
 (require 'compile)
-o(require 'cl-seq)
+(require 'cl-seq)
 (require 'subr-x)
 
 (eval-when-compile
@@ -487,6 +487,42 @@ prompt asking for additional ARGS - arguments."
                           (recentf-candidates) nil t)))
     ;; find files
     (find-file candidate)))
+
+;;;###autoload
+(defun add-dir-to-load-path (dir)
+  "Add arbitrary DIR (string) to `load-path'.
+If call interactively asks for the directory using
+the \\[minibuffer]."
+  ;; interactively maps DIR argument.
+  (interactive
+   (list
+    (expand-file-name
+     (read-directory-name
+      "Dir:" (concat user-emacs-directory "site-lisp/") nil 'confirm))))
+  ;; body:
+  (let (
+        ;; verify if the dir comes from the
+        ;; interactive form which returns a (cons) list)
+        (dir (if (equal (type-of dir) 'cons)
+                 (car dir)
+               dir)))
+    ;; remove last / (if necessary)
+    (setq dir (replace-regexp-in-string "\/$" "" dir))
+    ;; switch/case
+    (cond
+     ;; verify if directory exists
+     ((not (file-exists-p dir))
+      (message "Directory not found"))
+     ;; verify if it's already a member
+     ((member dir load-path)
+      (message "Already present"))
+     ;; finally push (add) and logs
+     (t
+      (push dir load-path)
+      (message "Dir %s added to load-path" dir)))))
+
+;; TODO: (defun rm-dir-from-load-path (&optional dir) (interactive))
+;; TODO: (defun clean-load-path-duplicates () (interactive))
 
 ;;;###autoload
 (defun compile-history ()
