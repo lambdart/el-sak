@@ -362,6 +362,33 @@ Or indents the current line."
      (t (message "Was not possible to compile the file: %s" buffer-file-name)))))
 
 ;;;###autoload
+(defun byte-compile-library (dir &optional load)
+  "Byte compile a library, 'el's file inside a arbitrary DIR.
+
+If LOAD \\[universal-argument] prefix is non-nil, load file
+after compilation, be careful with this option (load prefix argument).
+
+Suggestion define a aliases for this: 'compile-library', inside your
+init.el configuration."
+
+  ;; maps: (dir load) arguments
+  (interactive
+   (list
+    ;; dir
+    (expand-file-name
+     (read-directory-name
+      "Dir:" (concat user-emacs-directory "site-lisp/") nil 'confirm))
+    ;; load
+    (if current-prefix-arg t nil)))
+  ;; function body:
+  (let ((files (directory-files dir t)))
+    ;; let body:
+    (dolist (file files)
+      ;; byte-compile if file as the extension .el
+      (when (equal (file-name-extension file) "el")
+        (byte-compile-file file load)))))
+
+;;;###autoload
 (defun update-packages-autoloads (dir file)
   "Generate autoloads from a DIR and save in FILE destination."
   (interactive
