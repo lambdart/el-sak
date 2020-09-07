@@ -1,8 +1,10 @@
-#+TITLE: Lex - Libraries Extensions
+#+TITLE: Lex
 #+AUTHOR: esac
 #+EMAIL: esac-io@tutanota.com
 #+DESCRIPTION: little hacks for vanilla Emacs
 #+PROPERTY: header-args :tangle no
+
+  Libraries Extensions - little hacks for vanilla Emacs.
 
 * Introduction
 
