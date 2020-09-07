@@ -1,8 +1,8 @@
-;;; vex-util.el --- vanilla Emacs extensions -*- lexical-binding: t -*-
+;;; lex-unix.el --- Library Extensions Unix Utilities -*- lexical-binding: t -*-
 ;;
 ;; Author: esac <esac-io@tutanota.com>
-;; Version: 0.1
-;; URL: https://github.com/esac-io/vex
+;; Version: 0.0.2 Alpha
+;; URL: https://github.com/esac-io/lex
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -30,117 +30,117 @@
 ;;
 ;;; Commentary:
 ;;
-;; This package adds utility functions to Emacs/Elisp
-;; interpreter space.
+;; This library add functions to invoke unix utilities
+;; from the Virtual Lisp Machine interpreter space (Emacs).
 ;;
 ;;; Code:
 
 (require 'files)
 
-(defgroup vex-util nil
+(defgroup lex-unix nil
   "Vex utilities."
   :group 'extensions
   :group 'convenience)
 
-(defcustom vex-opacity .9
+(defcustom lex-opacity .9
   "Opacity default value.
 The opacity value is a number from 0 to 1,
 with zero being fully transparent and 1 being fully opaque."
   :type 'float
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
-(defcustom vex-transset "transset"
+(defcustom lex-transset "transset"
   "Transset is a simple file for X servers.
 It lets the user set the transparency on a window."
   :type 'string
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
-(defcustom vex-transset-options "-a"
-  "Options for the `vex-transset' program."
+(defcustom lex-transset-options "-a"
+  "Options for the `lex-transset' program."
   :type 'string
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
-(defcustom vex-image-viewer "feh"
+(defcustom lex-image-viewer "feh"
   "An Image viewer program."
   :type 'string
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
-(defcustom vex-image-viewer-options "--bg-fill"
-  "Options for the `vex-image-viewer' program."
+(defcustom lex-image-viewer-options "--bg-fill"
+  "Options for the `lex-image-viewer' program."
   :type 'string
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
-(defcustom vex-image-viewer-args "-g +0+0"
+(defcustom lex-image-viewer-args "-g +0+0"
   "An Image viewer default args."
   :type 'string
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
-(defcustom vex-image-dir
+(defcustom lex-image-dir
   (expand-file-name "~/media/images/wallpapers/")
-  "Options for the `vex-image-viewer' program."
+  "Options for the `lex-image-viewer' program."
   :type 'string
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
-(defcustom vex-image-viewer "feh"
+(defcustom lex-image-viewer "feh"
   "An Image viewer program."
   :type 'string
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
-(defcustom vex-slock "slock"
+(defcustom lex-slock "slock"
   "Command line screen locker utility."
   :type 'string
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
-(defcustom vex-scrot "scrot"
+(defcustom lex-scrot "scrot"
   "Command line screen capture utility."
   :type 'string
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
-(defcustom vex-scrot-dir
+(defcustom lex-scrot-dir
   (expand-file-name "scrot" user-emacs-directory)
   "Where to put captured screen images."
   :type 'string
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
-(defcustom vex-mixer "mixer"
+(defcustom lex-mixer "mixer"
   "Mixer – set/display soundcard mixer values."
   :type 'string
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
-(defcustom vex-mixer-factor 5
+(defcustom lex-mixer-factor 5
   "Volume factor."
   :type 'integer
-  :group 'vex-util
+  :group 'lex-unix
   :safe t)
 
 ;;;###autoload
 (defun set-frame-transparency (&optional opacity)
   "Set OPACITY transparency in current frame."
   (interactive
-   (list (read-number "Opacity: " vex-opacity)))
-  (if (executable-find vex-transset)
+   (list (read-number "Opacity: " lex-opacity)))
+  (if (executable-find lex-transset)
       (async-shell-command
        (format "%s %s %.1f"
-               vex-transset
-               vex-transset-options
-               (or opacity vex-opacity)))
-    (message "Program %s not found" vex-transset)))
+               lex-transset
+               lex-transset-options
+               (or opacity lex-opacity)))
+    (message "Program %s not found" lex-transset)))
 
 ;;;###autoload
 (defun set-wallpaper (image &optional args)
-  "Set background IMAGE using `vex-image-viewer'.
+  "Set background IMAGE using `lex-image-viewer'.
 With \\[universal-argument]] prompt a secondary one,
 asking for image viewer complementary ARGS - arguments."
   ;; (interactive (list …)) → This is the most general way
@@ -152,24 +152,24 @@ asking for image viewer complementary ARGS - arguments."
    (list
     ;; get image file
     (read-file-name "Image: "
-                    vex-image-dir
+                    lex-image-dir
                     nil
                     t)
 
     ;; get current prefix argument (universal argument)
     (if current-prefix-arg
         (read-string "Args: "
-                     vex-image-viewer-args))))
+                     lex-image-viewer-args))))
   ;; body:
   ;; conditions (switch/case equivalent)
   (cond
-   ;; it is possible to execute vex-image-viewer program
-   ((not (executable-find vex-image-viewer))
-    (message "Program %s not executable" vex-image-viewer))
+   ;; it is possible to execute lex-image-viewer program
+   ((not (executable-find lex-image-viewer))
+    (message "Program %s not executable" lex-image-viewer))
    ;; verify if the file exists and it's a regular file
    ((or (file-directory-p image) (not (file-exists-p image)))
     (message "Image file %s not found" image))
-   ;; default call vex-image-viewer to set the wallpaper
+   ;; default call lex-image-viewer to set the wallpaper
    (t
     ;; Remember: In Elisp, you will often be better served by
     ;; calling `start-process' directly, since it offers more
@@ -178,8 +178,8 @@ asking for image viewer complementary ARGS - arguments."
     ;; TODO: Research, it is really necessary to use start-process?
     (async-shell-command
      (format "%s %s %s %s"
-             vex-image-viewer
-             vex-image-viewer-options
+             lex-image-viewer
+             lex-image-viewer-options
              (or args "")
              image)))))
 
@@ -193,8 +193,8 @@ asking for image viewer complementary ARGS - arguments."
        "Dir: " nil default-directory t))))
   ;; body:
   (let ((default-directory (expand-file-name
-                            (or dest vex-scrot-dir)))
-        (scrot (executable-find vex-scrot)))
+                            (or dest lex-scrot-dir)))
+        (scrot (executable-find lex-scrot)))
     (cond
      ;; if screen capture utility
      (scrot
@@ -202,15 +202,15 @@ asking for image viewer complementary ARGS - arguments."
       (message "Image saved at %s" default-directory))
      ;; default
      (t
-      (message "Command %s not found" vex-scrot)))))
+      (message "Command %s not found" lex-scrot)))))
 
 ;;;###autoload
 (defun lock-screen ()
-  "Lock screen using `vex-slock' utility."
+  "Lock screen using `lex-slock' utility."
   (interactive)
-  (if (not (executable-find vex-slock))
-      (message "Command %s not found" vex-slock)
-    (async-shell-command vex-slock)))
+  (if (not (executable-find lex-slock))
+      (message "Command %s not found" lex-slock)
+    (async-shell-command lex-slock)))
 
 ;;;###autoload
 (defun set-volume (value &optional direction)
@@ -218,7 +218,7 @@ asking for image viewer complementary ARGS - arguments."
   (interactive
    (list
     (read-number "Volume: " 50)))
-  (let* ((mixer (executable-find vex-mixer))
+  (let* ((mixer (executable-find lex-mixer))
          (direction (or direction :set))
          (cmd (cond
                ((eq direction :up)   (format "%s vol +%d" mixer value))
@@ -242,7 +242,7 @@ asking for the volume value - N."
    (list
     (when current-prefix-arg
       (read-number "Factor: " 5))))
-  (let ((factor (or n vex-mixer-factor)))
+  (let ((factor (or n lex-mixer-factor)))
     (set-volume factor :up)
     (message "Volume raised: +%d" factor)))
 
@@ -255,7 +255,7 @@ asking for the volume value - N."
    (list
     (when current-prefix-arg
       (read-number "Factor: " 5))))
-  (let ((factor (or n vex-mixer-factor)))
+  (let ((factor (or n lex-mixer-factor)))
     (set-volume factor :down)
     (message "Volume lower: -%d" factor)))
 
@@ -290,5 +290,5 @@ text file output name."
       ;; finally execute pdftotext command
       (async-shell-command cmd))))
 
-(provide 'vex-util)
-;;; vex-util.el ends here
+(provide 'lex-unix)
+;;; lex-unix.el ends here

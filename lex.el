@@ -1,7 +1,7 @@
-;;; vex.el --- vanilla Emacs extensions -*- lexical-binding: t -*-
+;;; lex.el --- vanilla Emacs extensions -*- lexical-binding: t -*-
 ;;
 ;; Author: esac <esac-io@tutanota.com>
-;; Version: 0.1
+;; Version: 0.0.2 Alpha
 ;; URL: https://github.com/esac-io/vex
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -30,7 +30,7 @@
 ;;
 ;;; Commentary:
 ;;
-;; This package adds more (clever) functions to the builtin packages,
+;; This library extends other libraries (adds more (clever) functions to it),
 ;; this functions should be small in code size and its goals are to engage
 ;; the overall usability, some of them has the prefix 'safe' which indicates
 ;; their purposed to be a more safer version compered to the
@@ -40,11 +40,8 @@
 ;; as they are basic functions and will be called from the
 ;; interactive prompt (minibuffer) or keybinded latter.
 ;;
-;; The functions names follows the
-;; code convection (action-object) stated in Elisp tips manuals.
-;;
-;; TODO: Add elisp manual reference!
-;; TODO: List the functions here!
+;; The functions names follows the code convection:
+;; ([prefix-]action-target-object).
 ;;
 ;;; Code:
 
@@ -54,7 +51,6 @@
 (require 'recentf)
 (require 'completion)
 (require 'replace)
-(require 'autoload)
 (require 'compile)
 (require 'cl-seq)
 (require 'subr-x)
@@ -366,7 +362,7 @@ Or indents the current line."
   "Byte compile a library, 'el's file inside a arbitrary DIR.
 
 If LOAD \\[universal-argument] prefix is non-nil, load file
-after compilation, be careful with this option (load prefix argument).
+after compilation, be careful with this option.
 
 Suggestion define a aliases for this: 'compile-library', inside your
 init.el configuration."
@@ -377,7 +373,7 @@ init.el configuration."
     ;; dir
     (expand-file-name
      (read-directory-name
-      "Dir:" (concat user-emacs-directory "site-lisp/") nil 'confirm))
+      "Dir: " (concat user-emacs-directory "site-lisp/") nil 'confirm))
     ;; load
     (if current-prefix-arg t nil)))
   ;; function body:
@@ -387,20 +383,6 @@ init.el configuration."
       ;; byte-compile if file as the extension .el
       (when (equal (file-name-extension file) "el")
         (byte-compile-file file load)))))
-
-;;;###autoload
-(defun update-packages-autoloads (dir file)
-  "Generate autoloads from a DIR and save in FILE destination."
-  (interactive
-   (let* ((dir (read-directory-name "Dir: " nil nil t))
-          (file (read-file-name "File: " dir nil 'confirm)))
-     (list dir file)))
-  (let ((dirs (nthcdr 2 (directory-files dir t)))
-        (generated-autoload-file (expand-file-name file dir)))
-    ;; remove files that aren't directories
-    (setq dirs (cl-remove-if-not #'file-directory-p dirs))
-    ;; apply update-packages-autoloads using all dirs
-    (apply 'update-directory-autoloads dirs)))
 
 ;;;###autoload
 (defun execute-file (executable &optional args)
@@ -640,5 +622,5 @@ the \\[minibuffer]."
             (completing-read "Goto: " candidates nil t))
       (goto-char (cdr (assoc position candidates)))))))
 
-(provide 'vex)
-;;; vex.el ends here
+(provide 'lex)
+;;; lex.el ends here
