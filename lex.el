@@ -2,7 +2,7 @@
 ;;
 ;; Author: esac <esac-io@tutanota.com>
 ;; Version: 0.0.2 Alpha
-;; URL: https://github.com/esac-io/vex
+;; URL: https://github.com/esac-io/lex
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -609,18 +609,32 @@ the \\[minibuffer]."
 (defun mark-goto-char ()
   "Browse `mark-ring' interactively and jump to the selected position."
   (interactive)
-  (let ((candidates (mark-ring-candidates))
-        (position nil))
+  (let ((candidates (mark-ring-candidates)))
     (cond
-     ;; if not candidates nothing to do, logs
-     ;; and leave
-     ((not candidates)
-      (message "Mark ring is empty"))
-     ;; else goto position
-     (t
-      (setq position
-            (completing-read "Goto: " candidates nil t))
-      (goto-char (cdr (assoc position candidates)))))))
+     ;; no candidates: logs and leave
+     ((not candidates) (message "Mark ring is empty"))
+     ;; go to position
+     (t (goto-char
+         (cdr
+          (assoc (completing-read "Goto: " candidates nil t) candidates)))))))
+
+;;;###autoload
+(defun shell-command-current-buffer (command)
+  "Run shell COMMAND and print its contents on the `current-buffer'."
+  ;; get command parameter
+  (interactive
+   (list
+    (read-shell-command "Shell command: ")))
+  ;; insert shell command on `current-buffer'.
+  (when (not (string-empty-p command))
+    ;; execute shell command
+    (shell-command command)
+    ;; get and insert command output (if any)
+    (let ((output
+           (with-current-buffer
+               (get-buffer shell-command-buffer-name)
+             (buffer-string))))
+    (insert output))))
 
 (provide 'lex)
 ;;; lex.el ends here
