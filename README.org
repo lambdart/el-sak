@@ -1,4 +1,4 @@
-#+TITLE: Vex
+#+TITLE: Lex - Libraries Extensions
 #+AUTHOR: esac
 #+EMAIL: esac-io@tutanota.com
 #+DESCRIPTION: little hacks for vanilla Emacs
@@ -6,102 +6,117 @@
 
 * Introduction
 
-  An simple =Elisp= package - a place to put small
-  new functions to be evaluated - little hacks to improve
-  =Emacs= overall usability keeping everything more organized
-  and easy to manage.
+  An simple library that extends builtin and others external
+  libraries - a place to put small new functions to be evaluated -
+  little hacks to improve =Emacs= overall usability keeping everything
+  more organized and easy to manage.
 
-  The =VEX= is a abbreviation for =[V]anilla [E]macs E[X]tensions=.
+  The =Lex= is a abbreviation for =Libraries Extenstions=.
 
 * Overview
 
   On =Emacs= every user also is a developer, we twist and extend
-  your programmable platform to meet our needs,
-  to automatize boring tasks, to become more productive -
-  using smart data transformations to quickly create new
-  features, analyse data and processes of interest,
+  your programmable platform (=VIRTUAL LISP MACHINE=)
+  to meet our needs, to automatize boring tasks,
+  to become more productive - using smart data transformations
+  to quickly create new features, analyse data and processes of interest,
   and more, much more!
 
   This is probably a continuum for the =Emacs= user life spam,
   =forever= an =user developer=, taking more and more control,
   engaging our manipulative capabilities all day long.
 
-  So, that's why =Vex= was created to pull all this new functions
-  that depends only on the builtin functionalities of =Emacs= in
-  the same place, outside of the ~init.el~ configuration file,
+  So, that's why =Lex= was created to pull all this new functions
+  in a common place, outside of the ~init.el~ configuration file,
   making easy to extend/reuse/modify the code that was already
   written.
 
-  By definition the new procedures should be =little hacks=,
+  By definition the new procedures should be =little hacks=, i.e,
   naturally small.
+
+* Version
+
+  - 0.0.2 Alpha (Experimental)
 
 * Dependencies
 ** Elisp
 
-   - simple
+   - delsel
    - files
+   - simple
+   - recentf
    - completion
+   - replace
+   - compile
+   - cl-seq
+   - cl-macs
+   - subr-x
 
-** Non-Elisp
+** Non-Elisp (Unix Binaries)
 
-   - transset
    - feh
+   - mixer
+   - scrot
+   - slock
+   - transset
 
 * Tested on
 
   - Emacs 26.3
   - Emacs 28.0.50
+  - FreeBSD 12.1
 
 * Install
 ** Manually
 
-  Clone =Vex= repository to a arbitrary location:
+  Clone =Lex= repository to a arbitrary location:
 
   #+BEGIN_SRC sh
 
-  $ git clone https://github.com/esac-io/vex ~/.emacs.d/site-elisp/vex
+  $ git clone https://github.com/esac-io/lex ~/.emacs.d/site-elisp/lex
 
   #+END_SRC
 
-  Add =Vex= directory to =load-path= in your
+  Add =Lex= directory to =load-path= in your
   Emacs initialization file (~init.el~) and load it.
 
   #+BEGIN_SRC emacs-lisp
 
   ;; add to load-path
-  (add-to-list 'load-path "/replace/me/to/vex/full/path")
+  (add-to-list 'load-path "/replace/me/to/lex/full/path")
 
-  ;; load vex basic features
-  (require 'vex nil t)
+  ;; load lex basic features
+  (require 'lex nil t)
 
-  ;; load vex utilities
-  (require 'vex-util nil t)
+  ;; load lex unix utilities
+  (require 'lex-unix nil t)
 
   #+END_SRC
 
   - Note: For a more dynamic approach:
-    - =M-x load-library RET vex RET=
-    - =M-x load-library RET vex-util RET=
+    - =M-x load-library RET lex RET=
+    - =M-x load-library RET lex-unix RET=
 
 ** Compile
 
    * Note: Optional but recommended.
 
-   To compile the files the the byte-compiled =Elisp= representation:
+   To compile the files the the byte-compiled =Elisp= representation,
+   example:
 
    #+BEGIN_SRC sh
 
-   [at-vex-root-directory]$ make
+   [at-lex-root-directory]$ make
 
    #+END_SRC
 
 * Customize
 
   To see all the options inside =Emacs= and to customize it,
-  uses: =M-x customize-group RET vex-util RET=.
+  uses: =M-x customize-group RET lex-unix RET=.
 
-  Just a few options are available related to the utilities:
-  =transset= and =feh=.
+  Just a few options are available related to the =Unix= utilities:
+  =transset=, =feh=, =scrot=, =mixer= and =slock=.
 
 * LICENSE
   MIT
