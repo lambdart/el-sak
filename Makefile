@@ -17,7 +17,7 @@ COMPILE  = -f batch-byte-compile
 
 # AUTOLOAD related variables
 AUTOLOAD_UPDATE = -f batch-update-autoloads
-AUTOLOAD_FILE := "${PWD}/vex-autoloads.el"
+AUTOLOAD_FILE := "${PWD}/lex-autoloads.el"
 AUTOLOAD_EVAL := --eval '(setq generated-autoload-file ${AUTOLOAD_FILE})'
 
 # Expand the source code files
