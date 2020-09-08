@@ -530,19 +530,14 @@ the \\[minibuffer]."
       (push dir load-path)
       (message "Dir %s added to load-path" dir)))))
 
-;; TODO: (defun rm-dir-from-load-path (&optional dir) (interactive))
-;; TODO: (defun clean-load-path-duplicates () (interactive))
-
 ;;;###autoload
-(defun compile-history ()
+(defun compile-repeat ()
   "Compile using `compile-history' as candidates."
   (interactive)
   (let* ((candidates compile-history)
          (compile-command
           (completing-read "Command: "
-                           candidates nil
-                           'confirm
-                           ""
+                           candidates nil 'confirm ""
                            `(compile-history))))
     (when (not (string-empty-p compile-command))
       (compile compile-command))))
@@ -555,7 +550,9 @@ the \\[minibuffer]."
     ;; get candidates loop
     (dotimes (i size)
       (setq command (prin1-to-string (nth i command-history)))
-      (when (not (string-empty-p command))
+      (when (not (or (string-empty-p command)
+                     ;; ignore closure commands
+                     (equal (string-match "^((" command) 0)))
         (push command candidates)))
     ;; return candidates
     candidates))
@@ -565,9 +562,8 @@ the \\[minibuffer]."
   "Execute a command from `command-history-candidates'."
   (interactive)
   (let ((command
-         (completing-read
-          "Eval: "
-          (command-history-candidates) nil 'corfirm "(")))
+         (completing-read "Eval: "
+                          (command-history-candidates) nil 'corfirm "(")))
     (save-restriction
       (eval (read command)))))
 
