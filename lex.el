@@ -531,8 +531,8 @@ the \\[minibuffer]."
       (message "Dir %s added to load-path" dir)))))
 
 ;;;###autoload
-(defun compile-repeat ()
-  "Compile using `compile-history' as candidates."
+(defun compile-command-history ()
+  "Compile using `compile-history' commands candidates."
   (interactive)
   (let* ((candidates compile-history)
          (compile-command
@@ -543,7 +543,7 @@ the \\[minibuffer]."
       (compile compile-command))))
 
 (defun command-history-candidates ()
-  "Return \\[command-history] string candidates."
+  "Return \\[command-history] candidates."
   (let ((size (length command-history))
         (command nil)
         (candidates '()))
@@ -558,8 +558,8 @@ the \\[minibuffer]."
     candidates))
 
 ;;;###autoload
-(defun execute-command-history ()
-  "Execute a command from `command-history-candidates'."
+(defun eval-command-history ()
+  "Eval previous command using `command-history-candidates'."
   (interactive)
   (let ((command
          (completing-read "Eval: "
