@@ -549,23 +549,15 @@ the \\[minibuffer]."
 
 (defun command-history-candidates ()
   "Return \\[command-history] string candidates."
-  (let* ((size (length command-history))
-         (commands (split-string (prin1-to-string command-history) ") "))
-         (command (nth 0 commands))
-         (candidates nil)
-         (i 1))
-    ;; process first one
-    (setq command (concat (substring command 1 (length command)) ")"))
-    (setf candidates (cons command candidates))
-    ;; process the 'middle' ones
-    (while (< i size)
-      (setq command (concat (nth i commands) ")"))
-      (setf candidates (cons command candidates))
-      (setq i (+ i 1)))
-    ;; process last one
-    (setq command (nth (- size 1) commands)
-          command (substring command 0 (- (length command) 1)))
-    (setf candidates (cons command candidates))
+  (let ((size (length command-history))
+        (command nil)
+        (candidates '()))
+    ;; get candidates loop
+    (dotimes (i size)
+      (setq command (prin1-to-string (nth i command-history)))
+      (when (not (string-empty-p command))
+        (push command candidates)))
+    ;; return candidates
     candidates))
 
 ;;;###autoload
@@ -574,7 +566,7 @@ the \\[minibuffer]."
   (interactive)
   (let ((command
          (completing-read
-          "C-x C-c "
+          "Eval: "
           (command-history-candidates) nil 'corfirm "(")))
     (save-restriction
       (eval (read command)))))
@@ -634,7 +626,7 @@ the \\[minibuffer]."
            (with-current-buffer
                (get-buffer shell-command-buffer-name)
              (buffer-string))))
-    (insert output))))
+      (insert output))))
 
 (provide 'lex)
 ;;; lex.el ends here
