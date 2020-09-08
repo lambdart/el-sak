@@ -436,14 +436,12 @@ prompt asking for additional ARGS - arguments."
       ((bounds (if (use-region-p)
                    (cons (region-beginning) (region-end))
                  (bounds-of-thing-at-point 'symbol)))
-       ;; get string
-       (string (unless bounds
-                 (read-string "Occur: "))))
+       ;; get string if necessary
+       (string (unless bounds (read-string "Occur: "))))
     (cond
      ;; region
      (bounds
-      (occur (buffer-substring-no-properties
-              (car bounds) (cdr bounds)))
+      (occur (buffer-substring-no-properties (car bounds) (cdr bounds)))
       (deactivate-mark))
      ;; default string, symbol
      (t (occur string)))))
@@ -562,9 +560,11 @@ the \\[minibuffer]."
   "Eval previous command using `command-history-candidates'."
   (interactive)
   (let ((command
-         (completing-read "Eval: "
-                          (command-history-candidates) nil 'corfirm "(")))
+         (completing-read
+          "Eval: " (command-history-candidates) nil 'corfirm "(")))
     (save-restriction
+      ;; save point
+      (push-mark (point))
       (eval (read command)))))
 
 (defun parse-mark-line-to-string (pos)
@@ -594,7 +594,7 @@ the \\[minibuffer]."
            finally return recip))
 
 ;;;###autoload
-(defun mark-goto-char ()
+(defun goto-mark ()
   "Browse `mark-ring' interactively and jump to the selected position."
   (interactive)
   (let ((candidates (mark-ring-candidates)))
