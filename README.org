@@ -13,7 +13,7 @@
   little hacks to improve =Emacs= overall usability keeping everything
   more organized and easy to manage.
 
-  The =Lex= is a abbreviation for =Libraries Extenstions=.
+  The =Lex= is a abbreviation for =Libraries Extensions=.
 
 * Overview
 
