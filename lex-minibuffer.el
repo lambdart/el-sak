@@ -1,4 +1,4 @@
-;;; lex-icomplete.el --- Library Extension: Icomplete -*- lexical-binding: t -*-
+;;; lex-minibuffer.el --- Library Extension: Minibuffer -*- lexical-binding: t -*-
 ;;
 ;; Author: esac <esac-io@tutanota.com>
 ;; Maintainer: esac
@@ -29,33 +29,31 @@
 ;;
 ;;; Commentary:
 ;;
-;; `Icomplete' library extensions.
+;; `Minibuffer' library extensions.
 ;;
 ;;; Code:
 
-(require 'icomplete)
 (require 'minibuffer)
 
-(defmacro icomplete-action-at-minibuffer (&rest body)
+(defmacro minibuffer-action (&rest body)
   "Check `minibuffer' if active and evaluate BODY forms (action)."
   `(when (minibufferp)
      (let ((candidate (car completion-all-sorted-completions)))
        ,@body)))
 
 ;;;###autoload
-(defun icomplete-kill-candidate ()
+(defun minibuffer-kill-top-candidate ()
   "Put `minibuffer' completion candidate at the top of the `kill-ring'."
   (interactive)
-  (icomplete-action-at-minibuffer
-   (kill-new `,candidate)))
+  (minibuffer-action (kill-new `,candidate)))
 
 ;;;###autoload
-(defun icomplete-insert-candidate ()
+(defun minibuffer-insert-top-candidate ()
   "Insert `minibuffer' completion candidate in last active window."
   (interactive)
-  (icomplete-action-at-minibuffer
+  (minibuffer-action
    (with-minibuffer-selected-window
      (insert `,candidate))))
 
-(provide 'lex-icomplete)
-;;; lex-icomplete.el ends here
+(provide 'lex-minibuffer)
+;;; lex-minibuffer.el ends here
