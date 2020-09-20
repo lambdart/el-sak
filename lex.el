@@ -102,6 +102,7 @@
 ;;;###autoload
 (defun safe-start-process (name program args)
   "Just a `start-process' function wrapper.
+The arguments NAME PROGRAM ARGS are the same of its original function.
 The program will be stated if exists in \\[exec-path]."
   (if (executable-find program)
       (start-process name nil program args)
@@ -623,6 +624,30 @@ the \\[minibuffer]."
                (get-buffer shell-command-buffer-name)
              (buffer-string))))
       (insert output))))
+
+;;;###autoload
+(defun list-frames ()
+  "List all live frames."
+  (interactive)
+  (prin1 (frame-list)))
+
+;;;###autoload
+(defun open-terminal (name)
+  "Call `make-term' with the right arguments.
+Asks for the NAME of the created terminal buffer interactively.
+Get shell from the SHELL environment variable directly."
+  (interactive "sBuffer-name: ")
+  (let* ((name (if (string-empty-p name) "terminal" name))
+         (buffer (make-term name (getenv "SHELL"))))
+    (if (not (buffer-live-p buffer)) nil
+      (set-buffer buffer)
+      ;; verify if term-mode and term-char-mode are available
+      (when (and (fboundp 'term-mode)
+                 (fboundp 'term-char-mode))
+        (funcall 'term-mode)
+        (funcall 'term-char-mode))
+      ;; switch to the term buffer
+      (switch-to-buffer buffer))))
 
 (provide 'lex)
 ;;; lex.el ends here
