@@ -34,6 +34,7 @@
 ;;; Code:
 
 (require 'minibuffer)
+(require 'help-fns)
 
 (defmacro minibuffer-action (&rest body)
   "Check `minibuffer' if active and evaluate BODY forms (action)."
@@ -49,11 +50,21 @@
 
 ;;;###autoload
 (defun minibuffer-insert-top-candidate ()
-  "Insert `minibuffer' completion candidate in last active window."
+  "Insert `minibuffer' completion candidate in current active buffer."
   (interactive)
   (minibuffer-action
    (with-minibuffer-selected-window
      (insert `,candidate))))
+
+;;;###autoload
+(defun minibuffer-describe-top-candidate ()
+  "Describe symbol using top-most `minibuffer' completion candidate."
+  (interactive)
+  (when (minibufferp)
+    (let* ((candidate (car completion-all-sorted-completions))
+           (symbol (read candidate)))
+      (when (symbolp symbol)
+        (describe-symbol symbol)))))
 
 (provide 'lex-minibuffer)
 ;;; lex-minibuffer.el ends here
