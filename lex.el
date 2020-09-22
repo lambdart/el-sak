@@ -88,40 +88,38 @@
       (kill-buffer buffer))))
 
 ;;;###autoload
-(defun safe-funcall (func args)
+(defmacro safe-funcall (func &rest args)
   "Call FUNC with ARGS, if it's bounded."
-  (when (fboundp func)
-    (apply 'funcall func args)))
+  `(when (fboundp ,func)
+     (apply 'funcall ,func ',args)))
 
 ;;;###autoload
-(defun safe-mkdir (dir)
+(defmacro safe-mkdir (dir)
   "Create DIR in the file system."
-  (when (and (not (file-exists-p dir))
-             (make-directory dir :parents))))
+  `(when (and (not (file-exists-p ,dir))
+              (make-directory ,dir :parents))))
 
 ;;;###autoload
-(defun safe-start-process (name program args)
+(defmacro safe-set-frame-font (font)
+  "Set the default font to FONT."
+  `(cond ((find-font (font-spec :name ,font))
+          (set-frame-font ,font nil t))))
+
+;;;###autoload
+(defmacro safe-start-process (name program &rest args)
   "Just a `start-process' function wrapper.
 The arguments NAME PROGRAM ARGS are the same of its original function.
 The program will be stated if exists in \\[exec-path]."
-  (if (executable-find program)
-      (start-process name nil program args)
-    (message "Unable to start %s program, executable not found" program)))
-
-;;;###autoload
-(defun safe-set-frame-font (font)
-  "Set the default font to FONT."
-  (cond ((find-font (font-spec :name font))
-         (set-frame-font font nil t))))
+  `(if (not (executable-find program))
+       (message "Executable not found")
+     (apply 'start-process ,name nil ,program ',args)))
 
 ;;;###autoload
 (defun goto-minibuffer-window ()
   "Go to the active minibuffer, if available.
-
 Bind this to `completion-list-mode-map' to easily jump
 between the list of candidates present in the \\*Completions\\*
 buffer and the minibuffer."
-
   (interactive)
   (let ((window (active-minibuffer-window)))
     (when window
@@ -184,7 +182,6 @@ If ARG is positive UP else DOWN."
       ;; step 3: restore line position
       (forward-char (- orig end)))))
 
-;;;###autoload
 (defun compile-at-dir (dir command)
   "Compile passing COMMAND at DIR.
 Just a `compile' function wrapper."
@@ -363,7 +360,6 @@ after compilation, be careful with this option.
 
 Suggestion define a aliases for this: 'compile-library', inside your
 init.el configuration."
-
   ;; maps: (dir load) arguments
   (interactive
    (list
