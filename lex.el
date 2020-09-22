@@ -211,28 +211,24 @@ Just a `compile' function wrapper."
 (defun duplicate-line-or-region (&optional n)
   "Duplicate current line or region N times.
 If there's no region, the current line will be duplicated.
-Otherwise, its lines will be duplicated."
+Otherwise, the selected region will be duplicated."
   (interactive "p")
-  (save-mark-and-excursion
-    (let ((beg (line-beginning-position))
-          (end (line-end-position))
-          (i (or n 1)))
-      (when (region-active-p)
-        ;; update region positions
-        (setq beg (region-beginning)
-              end (region-end)))
-      (let ((region (buffer-substring beg end)))
-        (while (> i 0)
-          (goto-char (line-end-position))
-          (newline)
-          (insert region)
-          (setq i (1- i)))))))
-
-;; restore region if necessary
-;; (when (region-active-p)
-;;   (goto-char beg)
-;;   (push-mark end)
-;;   (setq mark-active t))))
+  (let ((beg (line-beginning-position))
+        (end (line-end-position))
+        (pos (point))
+        (i (or n 1)))
+    (when (use-region-p)
+      ;; update region positions
+      (setq beg (region-beginning)
+            end (region-end)))
+    (let ((region (buffer-substring beg end))
+          (deactivate-mark))
+      (while (> i 0)
+        (goto-char (line-end-position))
+        (newline)
+        (insert region)
+        (goto-char pos)
+        (setq i (- i 1))))))
 
 ;;;###autoload
 (defun transpose-lines-up ()
@@ -507,7 +503,6 @@ the \\[minibuffer]."
     (expand-file-name
      (read-directory-name
       "Dir:" (concat user-emacs-directory "site-lisp/") nil 'confirm))))
-  ;; body:
   (let (
         ;; verify if the dir comes from the
         ;; interactive form which returns a (cons) list)
@@ -519,15 +514,12 @@ the \\[minibuffer]."
     ;; switch/case
     (cond
      ;; verify if directory exists
-     ((not (file-exists-p dir))
-      (message "Directory not found"))
+     ((not (file-exists-p dir)) (message "Directory not found"))
      ;; verify if it's already a member
-     ((member dir load-path)
-      (message "Already present"))
+     ((member dir load-path) (message "Already present"))
      ;; finally push (add) and logs
-     (t
-      (push dir load-path)
-      (message "Dir %s added to load-path" dir)))))
+     (t (push dir load-path)
+        (message "Dir %s added to load-path" dir)))))
 
 ;;;###autoload
 (defun compile-command-history ()
@@ -598,38 +590,32 @@ the \\[minibuffer]."
 (defun goto-mark ()
   "Browse `mark-ring' interactively and jump to the selected position."
   (interactive)
-  (let ((candidates (mark-ring-candidates)))
+  (let ((candidates (mark-ring-candidates))
+        (candidate nil))
     (cond
      ;; no candidates: logs and leave
-     ((not candidates) (message "Mark ring is empty"))
-     ;; go to position
-     (t (goto-char
-         (cdr
-          (assoc (completing-read "Goto: " candidates nil t) candidates)))))))
+     ((not candidates)
+      (message "Mark ring is empty"))
+     ;; default: goto position
+     (t
+      ;; select candidate
+      (setq candidate (completing-read "Goto: " candidates nil t))
+      ;; goto mark
+      (goto-char (cdr (assoc candidate candidates)))))))
 
 ;;;###autoload
 (defun shell-command-current-buffer (command)
   "Run shell COMMAND and print its contents on the `current-buffer'."
   ;; get command parameter
-  (interactive
-   (list
-    (read-shell-command "Shell command: ")))
+  (interactive (list (read-shell-command "Shell command: ")))
   ;; insert shell command on `current-buffer'.
   (when (not (string-empty-p command))
-    ;; execute shell command
     (shell-command command)
-    ;; get and insert command output (if any)
     (let ((output
            (with-current-buffer
                (get-buffer shell-command-buffer-name)
              (buffer-string))))
       (insert output))))
-
-;;;###autoload
-(defun list-frames ()
-  "List all live frames."
-  (interactive)
-  (prin1 (frame-list)))
 
 ;;;###autoload
 (defun open-terminal (name)
