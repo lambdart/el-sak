@@ -58,11 +58,21 @@
 (eval-when-compile
   (require 'cl-macs))
 
-(defun safe-load-file (file)
+;;;###autoload
+(defmacro safe-load-file (file)
   "Load FILE if exists."
-  (if (file-exists-p file)
-      (load (expand-file-name file) t nil nil)
-    (message "File %s not found" file)))
+  `(if (not (file-exists-p ,file))
+       (message "File not found")
+     (load (expand-file-name ,file) t nil nil)))
+
+;;;###autoload
+(defmacro safe-add-dirs-to-load-path (dirs)
+  "Add DIRS (directories) to `load-path'."
+  `(dolist (dir ,dirs)
+     (setq dir (expand-file-name dir))
+     (when (file-directory-p dir)
+       (unless (member dir load-path)
+         (push dir load-path)))))
 
 (defun safe-add-subdirs-to-load-path (dir)
   "Add DIR and sub-directories to `load-path'."
@@ -70,22 +80,6 @@
           (expand-file-name dir user-emacs-directory)))
     (when (file-directory-p default-directory)
       (normal-top-level-add-subdirs-to-load-path))))
-
-(defun safe-add-list-to-load-path (dir-list)
-  "Add directories defined in DIR-LIST to `load-path'."
-  (dolist (dir dir-list)
-    (when (file-directory-p dir)
-      (unless (member dir load-path)
-        (push dir load-path)))))
-
-(defun safe-kill-buffer (buffer-or-name)
-  "Kill buffer specified by BUFFER-OR-NAME, if exists."
-  (unless (or (stringp buffer-or-name)
-              (bufferp buffer-or-name))
-    (error "`buffer-or-name' must be a string or a buffer object"))
-  (let ((buffer (get-buffer buffer-or-name)))
-    (when (buffer-live-p buffer)
-      (kill-buffer buffer))))
 
 ;;;###autoload
 (defmacro safe-funcall (func &rest args)
@@ -113,6 +107,15 @@ The program will be stated if exists in \\[exec-path]."
   `(if (not (executable-find program))
        (message "Executable not found")
      (apply 'start-process ,name nil ,program ',args)))
+
+(defun safe-kill-buffer (buffer-or-name)
+  "Kill buffer specified by BUFFER-OR-NAME, if exists."
+  (if (not (or (stringp buffer-or-name)
+               (bufferp buffer-or-name)))
+    (message "Error, `buffer-or-name' must be a string or a buffer object"))
+  (let ((buffer (get-buffer buffer-or-name)))
+    (when (buffer-live-p buffer)
+      (kill-buffer buffer))))
 
 ;;;###autoload
 (defun goto-minibuffer-window ()
@@ -588,14 +591,14 @@ the \\[minibuffer]."
   (let ((candidates (mark-ring-candidates))
         (candidate nil))
     (cond
-     ;; no candidates: logs and leave
+     ;; no candidates, logs and leave
      ((not candidates)
       (message "Mark ring is empty"))
-     ;; default: goto position
+     ;; default, goto position (char in the buffer)
      (t
-      ;; select candidate
+      ;; select candidate from mark-ring-candidates
       (setq candidate (completing-read "Goto: " candidates nil t))
-      ;; goto mark
+      ;; mark to char and finally go to it!
       (goto-char (cdr (assoc candidate candidates)))))))
 
 ;;;###autoload
