@@ -129,6 +129,15 @@ buffer and the minibuffer."
       (select-window window nil))))
 
 ;;;###autoload
+(defun goto-minibuffer-or-call-it ()
+  "Go to minibuffer window or call `execute-extended-command'."
+  (interactive)
+  (let ((window (active-minibuffer-window)))
+    (if (not window)
+        (call-interactively 'execute-extended-command)
+      (select-window window nil))))
+
+;;;###autoload
 (defun goto-completions-window ()
   "Go to the active completions window, if available."
   (interactive)
