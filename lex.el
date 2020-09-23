@@ -424,12 +424,12 @@ prompt asking for additional ARGS - arguments."
      (t (message "File %s is not executable" name)))))
 
 ;;;###autoload
-(defun force-minibuffer-exit ()
-  "Force `minibuffer' to exit."
+(defun quit-minibuffer ()
+  "Force `minibuffer' to exit/quit."
   (interactive)
-  (let ((minibuffer (active-minibuffer-window)))
-    (when minibuffer
-      (select-window minibuffer)
+  (let ((window (active-minibuffer-window)))
+    (when window
+      (select-window window)
       (funcall 'minibuffer-keyboard-quit))))
 
 ;;;###autoload
