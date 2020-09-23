@@ -91,7 +91,7 @@
 (defmacro safe-funcall (func &rest args)
   "Call FUNC with ARGS, if it's bounded."
   `(when (fboundp ,func)
-     (apply 'funcall ,func ',args)))
+     (funcall ,func ,@args)))
 
 ;;;###autoload
 (defmacro safe-mkdir (dir)
@@ -495,10 +495,9 @@ If call interactively asks for the directory using
 the \\[minibuffer]."
   ;; interactively maps DIR argument.
   (interactive
-   (list
-    (expand-file-name
-     (read-directory-name
-      "Dir:" (concat user-emacs-directory "site-lisp/") nil 'confirm))))
+   (list (expand-file-name
+          (read-directory-name
+           "Dir:" (concat user-emacs-directory "site-lisp/") nil 'confirm))))
   (let (
         ;; verify if the dir comes from the
         ;; interactive form which returns a (cons) list)
