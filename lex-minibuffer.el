@@ -1,4 +1,4 @@
-;;; lex-minibuffer.el --- Library Extension: Minibuffer -*- lexical-binding: t -*-
+;;; lex-minibuffer.el --- minibuffer related extentions -*- lexical-binding: t -*-
 ;;
 ;; Author: esac <esac-io@tutanota.com>
 ;; Maintainer: esac
@@ -33,6 +33,7 @@
 ;;
 ;;; Code:
 
+(require 'delsel)
 (require 'minibuffer)
 (require 'help-fns)
 
@@ -54,17 +55,65 @@
   (interactive)
   (minibuffer-action
    (with-minibuffer-selected-window
-     (insert `,candidate))))
+     (insert `,candidate)
+     (minibuffer-keyboard-quit))))
 
 ;;;###autoload
 (defun minibuffer-describe-top-candidate ()
   "Describe symbol using top-most `minibuffer' completion candidate."
   (interactive)
-  (when (minibufferp)
-    (let* ((candidate (car completion-all-sorted-completions))
-           (symbol (read candidate)))
-      (when (symbolp symbol)
-        (describe-symbol symbol)))))
+  (minibuffer-action
+   (let ((symbol (read `,candidate)))
+     (when (symbolp symbol)
+       (describe-symbol symbol)
+       (select-window
+        (minibuffer-window))))))
+
+;;;###autoload
+(defun goto-minibuffer-window ()
+  "Go to the active minibuffer, if available.
+Bind this to `completion-list-mode-map' to easily jump
+between the list of candidates present in the \\*Completions\\*
+buffer and the minibuffer."
+  (interactive)
+  (let ((window (active-minibuffer-window)))
+    (when window
+      (select-window window nil))))
+
+;;;###autoload
+(defun goto-minibuffer-or-call-it ()
+  "Go to minibuffer window or call `execute-extended-command'."
+  (interactive)
+  (let ((window (active-minibuffer-window)))
+    (if (not window)
+        (call-interactively 'execute-extended-command)
+      (select-window window nil))))
+
+;;;###autoload
+(defun goto-completions-window ()
+  "Go to the active completions window, if available."
+  (interactive)
+  (let ((window (get-buffer-window "*Completions*")))
+    (when window
+      (select-window window nil))))
+
+;;;###autoload
+(defun goto-minibuffer-or-completions-window ()
+  "Focus the active minibuffer or the \\*Completions\\*.
+
+If both the minibuffer and the Completions are present, this
+command will first move per invocation to the former, then the
+latter, and then continue to switch between the two."
+
+  (interactive)
+  (let ((minibuffer-window (active-minibuffer-window))
+        (completions-window (get-buffer-window "*Completions*")))
+    (cond
+     ((and minibuffer-window (not (minibufferp)))
+      (select-window minibuffer-window nil))
+     ((and completions-window (get-buffer "*Completions*"))
+      (select-window completions-window t)))))
 
 (provide 'lex-minibuffer)
+
 ;;; lex-minibuffer.el ends here
