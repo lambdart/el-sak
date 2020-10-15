@@ -15,10 +15,10 @@ LOAD_AUTOLOAD := -l autoload
 # Call batch-byte-compile function: -f
 COMPILE  = -f batch-byte-compile
 
-# AUTOLOAD related variables
-AUTOLOAD_UPDATE = -f batch-update-autoloads
+# Autoload related variables
+AUTOLOAD_DIR  := "${PWD}"
 AUTOLOAD_FILE := "${PWD}/lex-autoloads.el"
-AUTOLOAD_EVAL := --eval '(setq generated-autoload-file ${AUTOLOAD_FILE})'
+AUTOLOAD_EVAL := --eval '(make-directory-autoloads ${AUTOLOAD_DIR} ${AUTOLOAD_FILE})'
 
 # Expand the source code files
 EL != ls *.el
@@ -26,8 +26,8 @@ EL != ls *.el
 # Compiled files
 ELC = ${EL:.el=.elc}
 
-# Default goal
-all: compile autoload
+# Entry
+all: compile update_autoloads
 
 # Compile needed files
 compile: $(ELC)
@@ -36,8 +36,10 @@ compile: $(ELC)
 $(ELC): $(EL)
 	${EMACS} ${LOAD_PATH} ${COMPILE} ${.ALLSRC}
 
-autoload:
-	${EMACS} ${LOAD_AUTOLOAD} ${AUTOLOAD_EVAL} ${AUTOLOAD_UPDATE}
+# Update load definitions
+update_autoloads:
+	${EMACS} ${LOAD_AUTOLOAD} ${AUTOLOAD_EVAL}
 
+# Delete elisp byte compiled files (.elc)
 clean:
 	${RM} ${ELC}
