@@ -59,6 +59,16 @@
      (minibuffer-keyboard-quit))))
 
 ;;;###autoload
+(defun minibuffer-yank-top-candidate ()
+  "Insert `minibuffer' completion candidate inline."
+  (interactive)
+  (minibuffer-action
+   (beginning-of-line)
+   (kill-new `,candidate)
+   (yank)
+   (kill-line)))
+
+;;;###autoload
 (defun minibuffer-describe-top-candidate ()
   "Describe symbol using top-most `minibuffer' completion candidate."
   (interactive)
