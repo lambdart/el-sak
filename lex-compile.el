@@ -73,7 +73,7 @@
 
 ;;;###autoload
 (defun byte-compile-current-file ()
-  "Save and byte compile current file."
+  "Save and byte compile the current file."
   (interactive)
   ;; when the buffer is associate to a file
   (when buffer-file-name
@@ -89,26 +89,21 @@
 ;;;###autoload
 (defun byte-compile-library (dir &optional load)
   "Byte compile a library, 'el's file inside a arbitrary DIR.
-
-If LOAD \\[universal-argument] prefix is non-nil, load file
-after compilation, be careful with this option.
-
-Suggestion define a aliases for this: 'compile-library', inside your
-init.el configuration."
-  ;; maps: (dir load) arguments
-  (interactive
-   (list
-    ;; dir
-    (expand-file-name
-     (read-directory-name
-      "Dir: " (concat user-emacs-directory "site-lisp/") nil 'confirm))
-    ;; load
-    (if current-prefix-arg t nil)))
-  ;; function body:
+With prefix arg (noninteractively: 2nd arg), LOAD the file after compiling,
+but this options isn't recommended and should be used with careful."
+  ;; maps DIR AND LOAD arguments when
+  ;; called interactively
+  (interactive (list
+                (expand-file-name
+                 (read-directory-name
+                  "Dir: "
+                  (concat user-emacs-directory "site-lisp/") nil 'confirm))
+                current-prefix-arg))
+  ;; get files from directory
   (let ((files (directory-files dir t)))
-    ;; let body:
+    ;; (loop) for each file in files, verify and compile
     (dolist (file files)
-      ;; byte-compile if file as the extension .el
+      ;; if file extension is equal to .el, byte-compile
       (when (equal (file-name-extension file) "el")
         (byte-compile-file file load)))))
 
