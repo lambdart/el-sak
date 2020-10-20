@@ -3,7 +3,7 @@
 ;; Maintainer: esac
 ;; Version: 0.0.3 Alpha
 ;; URL: https://github.com/esac-io/lex
-;; Keywords: load-path load
+;; Keywords: compile byte-compile candidates make
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
