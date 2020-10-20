@@ -115,6 +115,6 @@ init.el configuration."
 ;;;###autoload
 (defalias 'compile-library 'byte-compile-library)
 
-(provide 'lex-compile.el)
+(provide 'lex-compile)
 
 ;;; lex-compile.el ends here
