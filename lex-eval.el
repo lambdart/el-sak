@@ -2,8 +2,11 @@
 ;;
 ;; Author: esac <esac-io@tutanota.com>
 ;; Maintainer: esac
-;; Version: 0.0.1 Alpha
-;; Keywords:
+;; Version: 0.0.3 Alpha
+;; URL: https://github.com/esac-io/lex
+;; Keywords: command-history elisp eval
+;;
+;; This file is NOT part of GNU Emacs.
 ;;
 ;;; MIT License
 ;;
@@ -28,6 +31,14 @@
 ;; SOFTWARE.
 ;;
 ;;; Commentary:
+;;
+;; This library provides a way to interact with the `command-history',
+;; using the `minibuffer' (command prompt) directly, its a mistake to
+;; hide the lisp (elisp dialect) from its user, this simple approach
+;; brings a lot of weariness of what is really goin' on inside your
+;; lisp machine.
+;;
+;; 'Simple and powerful.'
 ;;
 ;;; Code:
 
@@ -55,6 +66,7 @@
   (let ((command
          (completing-read
           "Eval: " (command-history-candidates) nil 'confirm "(")))
+    ;; necessary?
     (save-restriction
       ;; save point
       (push-mark (point))

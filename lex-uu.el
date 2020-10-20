@@ -1,7 +1,8 @@
-;;; lex-uu.el --- unix utilities -*- lexical-binding: t -*-
+;;; lex-uu.el --- invoke unix utilities -*- lexical-binding: t -*-
 ;;
 ;; Author: esac <esac-io@tutanota.com>
-;; Version: 0.0.2 Alpha
+;; Version: 0.0.3 Alpha
+;; Keywords: unix utilities processes process
 ;; URL: https://github.com/esac-io/lex
 ;;
 ;; This file is NOT part of GNU Emacs.

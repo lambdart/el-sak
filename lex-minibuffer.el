@@ -2,8 +2,9 @@
 ;;
 ;; Author: esac <esac-io@tutanota.com>
 ;; Maintainer: esac
-;; Version: 0.0.1 Alpha
+;; Version: 0.0.3 Alpha
 ;; URL: https://github.com/esac-io/lex
+;; Keywords: minibuffer interactive command
 ;;
 ;;; MIT License
 ;;
@@ -29,7 +30,17 @@
 ;;
 ;;; Commentary:
 ;;
-;; `Minibuffer' library extensions.
+;; This library provides more commands to handle generic actions to
+;; the `minibuffer' (with is a terrible name for a command prompt),
+;; Some commands are related to `minibuffer' window selection, others
+;; with copy/kill/insert/describe the top candidate.
+;;
+;; A “minibuffer” is a special buffer that Emacs commands use to read
+;; arguments more complicated than the single numeric prefix argument.
+;; These arguments include file names, buffer names, and command names (as
+;; in ‘M-x’). The minibuffer is displayed on the bottom line of the frame,
+;; in the same place as the echo area (*note The Echo Area::), but only
+;; while it is in use for reading an argument.
 ;;
 ;;; Code:
 
@@ -110,11 +121,9 @@ buffer and the minibuffer."
 ;;;###autoload
 (defun goto-minibuffer-or-completions-window ()
   "Focus the active minibuffer or the \\*Completions\\*.
-
 If both the minibuffer and the Completions are present, this
 command will first move per invocation to the former, then the
 latter, and then continue to switch between the two."
-
   (interactive)
   (let ((minibuffer-window (active-minibuffer-window))
         (completions-window (get-buffer-window "*Completions*")))

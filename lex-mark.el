@@ -1,8 +1,10 @@
 ;;; lex-mark.el --- mark related functions -*- lexical-binding: t -*-
 ;;
 ;; Author: esac <esac-io@tutanota.com>
-;; Version: 0.0.2 Alpha
+;; Maintainer: esac
+;; Version: 0.0.3 Alpha
 ;; URL: https://github.com/esac-io/lex
+;; Keywords: mark mark-ring
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -30,15 +32,15 @@
 ;;
 ;;; Commentary:
 ;;
-;; This library extends other libraries (adds more (clever) functions to it),
-;; this functions should be small in code size and its goals are to engage
-;; the overall usability, some of them has the prefix 'safe' which indicates
-;; their purposed to be a more safer version compered to the
-;; original counterparts.
+;; Each buffer has a special marker, which is designated “the mark”.
+;; When a buffer is newly created, this marker exists but does not point
+;; anywhere; this means that the mark doesn’t exist in that buffer yet.
 ;;
-;; Others don't have any prefix and this is intentional,
-;; as they are basic functions and will be called from the
-;; interactive prompt (minibuffer) or keybinded latter.
+;; Add more functions/commands to facility the usage of the marks in a
+;; interactive way, i.e, provides candidates/completions and a quick
+;; way to select then.
+;;
+;; TODO: add goto-mark-in-all-buffers
 ;;
 ;; The functions names follows the code convection:
 ;; ([prefix-]action-target-object).
