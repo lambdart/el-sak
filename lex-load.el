@@ -2,8 +2,11 @@
 ;;
 ;; Author: esac <esac-io@tutanota.com>
 ;; Maintainer: esac
-;; Version: 0.0.1 Alpha
-;; Keywords:
+;; Version: 0.0.3 Alpha
+;; URL: https://github.com/esac-io/lex
+;; Keywords: load-path load
+;;
+;; This file is NOT part of GNU Emacs.
 ;;
 ;;; MIT License
 ;;
@@ -28,6 +31,23 @@
 ;; SOFTWARE.
 ;;
 ;;; Commentary:
+;;
+;; Functions and commands to manipulate `load-path' interactively
+;; and other procedures related to `load' features like `reload-library'.
+;; The operations tries to follow the CRUD convention,
+;; the macro `safe-load-file' can be used to verify if the
+;; file exist before the load takes place.
+;;
+;; It's also possible to include a directory tree (subdirs) to `load-path'
+;; using the `safe-add-subdirs-to-load-pat' and `safe-add-dirs-to-load-path',
+;; by it's not recommended.
+;;
+;; See the `load-path' official documentation to proper configure
+;; the directory including using subdirs.el in combination
+;; to $EMACSLOADPATH environment variable.
+;;
+;; The functions/commands names follows the code convection:
+;; ([prefix-]action-target-object).
 ;;
 ;;; Code:
 
@@ -114,7 +134,7 @@ the \\[minibuffer]."
 (defun list-load-path ()
   "List `load-path' in buffer."
   (interactive)
-  (let ((buffer (get-buffer-create "*Load-Path Output*"))
+  (let ((buffer (get-buffer-create "*Load-Path*"))
         (inhibit-read-only t))
     ;; verify buffer creation
     (if (not buffer) nil
