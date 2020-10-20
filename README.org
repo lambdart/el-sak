@@ -38,7 +38,7 @@
 
 * Version
 
-  - 0.0.2 Alpha (Experimental)
+  - 0.0.3 Alpha (Experimental)
 
 * Dependencies
 ** Elisp
@@ -70,7 +70,6 @@
 
 * Install
 ** Manually
-
   Clone =Lex= repository to a arbitrary location:
 
   #+BEGIN_SRC sh
@@ -78,6 +77,14 @@
   $ git clone https://github.com/esac-io/lex ~/.emacs.d/site-elisp/lex
 
   #+END_SRC
+
+   Compile and generate the lex-autoloads.el file.
+
+   #+BEGIN_SRC sh
+
+   [at-lex-root-directory]$ make all
+
+   #+END_SRC
 
   Add =Lex= directory to =load-path= in your
   Emacs initialization file (~init.el~) and load it.
@@ -88,29 +95,14 @@
   (add-to-list 'load-path "/replace/me/to/lex/full/path")
 
   ;; load lex basic features
-  (require 'lex nil t)
-
-  ;; load lex unix utilities
-  (require 'lex-unix nil t)
+  (require 'lex-autoloads nil t)
 
   #+END_SRC
 
-  - Note: For a more dynamic approach:
-    - =M-x load-library RET lex RET=
-    - =M-x load-library RET lex-unix RET=
-
-** Compile
-
-   * Note: Optional but recommended.
-
-   To compile the files the the byte-compiled =Elisp= representation,
-   example:
-
-   #+BEGIN_SRC sh
-
-   [at-lex-root-directory]$ make
-
-   #+END_SRC
+  - Note: For a more dynamic approach, load one by one, for example:
+    - =M-x load-library RET lex-uu RET=
+    - =M-x load-library RET lex-load-path RET=
+    - ...
 
 * Customize
 
