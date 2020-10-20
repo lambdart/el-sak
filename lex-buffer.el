@@ -1,11 +1,12 @@
-;;; lex-buffer.el --- Buffer/Editing related functions
-;;
-;; -*- lexical-binding: t -*-
+;;; lex-buffer.el --- Buffer/Editing related functions -*- lexical-binding: t -*-
 ;;
 ;; Author: esac <esac-io@tutanota.com>
 ;; Maintainer: esac
-;; Version: 0.0.16Alpha
-;; Keywords: buffer editing
+;; Version: 0.0.3 Alpha
+;; URL: https://github.com/esac-io/lex
+;; Keywords: buffer editing text edit
+;;
+;; This file is NOT part of GNU Emacs.
 ;;
 ;;; MIT License
 ;;
@@ -31,11 +32,12 @@
 ;;
 ;;; Commentary:
 ;;
-;; This library extend `buffer' capabilities including edit functionalities
-;; that have 'text' (buffer contents) as target.
+;; This library provides edit capabilities that has the `buffer' text as target.
+;; Just a simple.el extension using the right nomenclature and abstractions.
 ;;
-;; Just a simple.el extension using the
-;; right nomenclature and abstractions.
+;; A “buffer” is a Lisp object containing text to be edited. Buffers are
+;; used to hold the contents of files that are being visited; there may
+;; also be buffers that are not visiting files.
 ;;
 ;;; Code:
 
