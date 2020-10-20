@@ -2,8 +2,11 @@
 ;;
 ;; Author: esac <esac-io@tutanota.com>
 ;; Maintainer: esac
-;; Version: 0.0.1 Alpha
-;; Keywords:
+;; Version: 0.0.3 Alpha
+;; URL: https://github.com/esac-io/lex
+;; Keywords: files directory directories
+;;
+;; This file is NOT part of GNU Emacs.
 ;;
 ;;; MIT License
 ;;
@@ -28,6 +31,13 @@
 ;; SOFTWARE.
 ;;
 ;;; Commentary:
+;;
+;; This library provides more functions/commands to the `files' space.
+;; Many of the file functions take one or more arguments that are file
+;; names. A file name is a string. Most of these functions expand file
+;; name arguments using the function ‘expand-file-name’, so that ‘~’ is
+;; handled correctly, as are relative file names (including ‘../’ and the
+;; empty string).
 ;;
 ;;; Code:
 
