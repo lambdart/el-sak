@@ -49,25 +49,27 @@
 ;;;###autoload
 (defun add-compile-command (command)
   "Add compile COMMAND to `compile-history' list."
+  ;; maps COMMAND argument interactively
   (interactive
-   (list (read-string "Compile command: "
-                      (format "make -C %s all" default-directory))))
+   (list
+    (read-string "Compile command: "
+                 (format "make -C %s all" default-directory))))
+  ;; push the command with is not already a list member
   (unless (member command compile-history)
     (push command compile-history)
+    ;; clean the list (avoid duplicates)
     (delete-dups compile-history)))
 
 ;;;###autoload
 (defun compile-command-history (command)
   "Run compile COMMAND using `compile-history' as candidates source."
+  ;; maps COMMAND argument interactively
   (interactive
-   ;; set compile command
    (list
-    (completing-read "Compile command: "
-                     compile-history
-                     nil
-                     'confirm ""
+    (completing-read "Compile command: " compile-history
+                     nil 'confirm ""
                      `(compile-history))))
-  ;; compile using the compile command
+  ;; compile using the right command
   (when (not (string-empty-p compile-command))
     (compile command)))
 
@@ -84,7 +86,9 @@
       (save-buffer)
       (byte-compile-file buffer-file-name))
      ;; default
-     (t (message "Was not possible to compile the file: %s" buffer-file-name)))))
+     (t
+      (message "Was not possible to compile the file: %s"
+               buffer-file-name)))))
 
 ;;;###autoload
 (defun byte-compile-library (dir &optional load)
@@ -106,9 +110,6 @@ but this options isn't recommended and should be used with careful."
       ;; if file extension is equal to .el, byte-compile
       (when (equal (file-name-extension file) "el")
         (byte-compile-file file load)))))
-
-;;;###autoload
-(defalias 'compile-library 'byte-compile-library)
 
 (provide 'lex-compile)
 
