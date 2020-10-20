@@ -38,7 +38,7 @@
 (require 'files)
 
 (defgroup lex-uu nil
-  "Vex utilities."
+  "Unix utilities."
   :group 'extensions
   :group 'convenience)
 
