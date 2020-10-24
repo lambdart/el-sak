@@ -92,5 +92,5 @@ GTAGS
 # Dirs
 .backup
 
-# files
-vex-autoloads.el
+# Autoloads
+*-autoloads.el
