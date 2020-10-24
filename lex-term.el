@@ -159,7 +159,7 @@ and binds some keystroke with `term-raw-map'."
 
 ;;;###autoload
 (defun term-kill-buffer-hook ()
-  "Function that hook `kill-buffer-hook'."
+  "Function to be added in the `kill-buffer-hook' list."
   ;; get current buffer (the buffer being killed)
   ;; get the current buffer associate process
   (let* ((buffer (current-buffer))
