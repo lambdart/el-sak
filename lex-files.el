@@ -66,6 +66,9 @@
 ;;;###autoload
 (defun recent-file-candidates ()
   "Return recent files candidates."
+  ;; clean recent file
+  (recentf-cleanup)
+  ;; generate recent file candidates
   (mapcar 'abbreviate-file-name recentf-list))
 
 ;;;###autoload
@@ -74,11 +77,8 @@
   (interactive
    (list (completing-read "Find recent file: "
                           (recent-file-candidates) nil t)))
-  ;; open recent file if exists
-  (if (file-exists-p file)
-      (find-file file)
-    ;; otherwise log and cleanup
-    (recentf-cleanup)))
+  ;; open recent file
+  (find-file file))
 
 ;;;###autoload
 (defun execute-file (executable &optional args)
