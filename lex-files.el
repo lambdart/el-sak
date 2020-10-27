@@ -46,14 +46,22 @@
 (require 'loadhist)
 
 ;;;###autoload
-(defun file-type (filename &optional arg)
-  "Show file type information at echo area."
-  (interactive "fFile: \np")
-  (let ((buffer (get-buffer-create "*File Type*"))
-        (command
-         (format "file \"%s\""
-                 (expand-file-name filename))))
-    (shell-command command (when arg buffer))))
+(defun file-type (file-name)
+  "Show FILE-NAME type information in echo area."
+  ;; read the file name (using the minibuffer)
+  (interactive "fFile: ")
+  ;; set file name full path
+  ;; set file executable
+  (let* ((buffer (get-buffer-create "*File Type*"))
+         (file-name (expand-file-name file-name))
+         (executable "file")
+         (command nil))
+    ;; verify if file is present
+    (when (executable-find executable)
+      ;; format command
+      (setq command (format "%s \"%s\"" executable file-name))
+      ;; execute it
+      (shell-command command (or buffer nil)))))
 
 (defun recent-file-candidates ()
   "Return recent files candidates."
