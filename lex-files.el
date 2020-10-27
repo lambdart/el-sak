@@ -63,19 +63,22 @@
       ;; execute it
       (shell-command command (or buffer nil)))))
 
+;;;###autoload
 (defun recent-file-candidates ()
   "Return recent files candidates."
   (mapcar 'abbreviate-file-name recentf-list))
 
 ;;;###autoload
-(defun find-recent-file ()
-  "Find recent file."
-  (interactive)
-  (let ((file
-         (completing-read "Find recent file: "
+(defun find-recent-file (file)
+  "Find recent FILE."
+  (interactive
+   (list (completing-read "Find recent file: "
                           (recent-file-candidates) nil t)))
-    ;; find files
-    (find-file file)))
+  ;; open recent file if exists
+  (if (file-exists-p file)
+      (find-file file)
+    ;; otherwise log and cleanup
+    (recentf-cleanup)))
 
 ;;;###autoload
 (defun execute-file (executable &optional args)
