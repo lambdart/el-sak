@@ -186,7 +186,7 @@ With argument ARG not nil or 1, move forward ARG - 1 lines first."
     (when (= orig-point (point))
       (move-beginning-of-line 1))))
 
-;;###autoload
+;;;###autoload
 (defun list-occurrences-at-point ()
   "Occur with symbol or region as its arguments."
   (interactive)
