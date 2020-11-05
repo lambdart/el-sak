@@ -3,7 +3,7 @@
 ;; Maintainer: esac
 ;; Version: 0.0.3 Alpha
 ;; URL: https://github.com/esac-io/lex
-;; Keywords: compile byte-compile candidates make
+;; Keywords: compile byte-compile collection make
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -32,8 +32,8 @@
 ;;; Commentary:
 ;;
 ;; This library provides interactive compile related functions and commands,
-;; its use the compile-history to provide candidates to be selected using the
-;; `minibuffer' completions system.
+;; its use the compile-history to provide a collection
+;; to be selected using the `minibuffer' completions system.
 ;;
 ;; Emacs Lisp has a “compiler” that translates functions written in Lisp
 ;; into a special representation called “byte-code” that can be executed
@@ -91,11 +91,8 @@
                buffer-file-name)))))
 
 ;;;###autoload
-(defun byte-compile-library (dir &optional load)
-  "Byte compile a library, 'el's file inside a arbitrary DIR.
-With prefix arg (noninteractively: 2nd arg), LOAD the file after compiling,
-but this options isn't recommended and should be used with careful."
-  ;; maps DIR AND LOAD arguments when
+(defun byte-compile-library (dir)
+  "Byte compile a library, 'el' files from an arbitrary DIR."
   ;; called interactively
   (interactive (list
                 (expand-file-name
@@ -109,7 +106,7 @@ but this options isn't recommended and should be used with careful."
     (dolist (file files)
       ;; if file extension is equal to .el, byte-compile
       (when (equal (file-name-extension file) "el")
-        (byte-compile-file file load)))))
+        (byte-compile-file file)))))
 
 (provide 'lex-compile)
 
