@@ -44,28 +44,28 @@
 
 (require 'subr-x)
 
-(defun command-history-candidates ()
-  "Return \\[command-history] candidates."
+(defun command-history-collection ()
+  "Return \\[command-history] completion table (collection)."
   (let ((size (length command-history))
         (command nil)
-        (candidates '()))
-    ;; get candidates loop
+        (collection '()))
+    ;; get collection loop
     (dotimes (i size)
       (setq command (prin1-to-string (nth i command-history)))
       (when (not (or (string-empty-p command)
                      ;; ignore closure commands
                      (equal (string-match "^((" command) 0)))
-        (push command candidates)))
-    ;; return candidates
-    candidates))
+        (push command collection)))
+    ;; return collection
+    collection))
 
 ;;;###autoload
 (defun eval-command-history ()
-  "Eval previous command using `command-history-candidates'."
+  "Eval previous command using `command-history'."
   (interactive)
   (let ((command
          (completing-read
-          "Eval: " (command-history-candidates) nil 'confirm "(")))
+          "Eval: " (command-history-collection) nil 'confirm "(")))
     ;; necessary?
     (save-restriction
       ;; save point

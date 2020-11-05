@@ -109,9 +109,9 @@ the \\[minibuffer]."
       (message "Dir %s added to load-path" dir)))))
 
 ;;;###autoload
-(defun rm-dir-from-load-path (dir)
+(defun del-dir-from-load-path (dir)
   "Remove an DIR from `load-path'."
-  ;; maps dir using load-path as source candidates
+  ;; maps dir using load-path collection
   (interactive
    (list (completing-read "Dir: " load-path nil t "/")))
   ;; if is a member remove it

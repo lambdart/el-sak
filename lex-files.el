@@ -50,33 +50,35 @@
   "Show FILE-NAME type information in echo area."
   ;; read the file name (using the minibuffer)
   (interactive "fFile: ")
+  ;; set output buffer
   ;; set file name full path
   ;; set file executable
   (let* ((buffer (get-buffer-create "*File Type*"))
          (file-name (expand-file-name file-name))
          (executable "file")
          (command nil))
-    ;; verify if file is present
+    ;; verify if file executable was found
     (when (executable-find executable)
-      ;; format command
+      ;; format the final command
       (setq command (format "%s \"%s\"" executable file-name))
       ;; execute it
       (shell-command command (or buffer nil)))))
 
 ;;;###autoload
-(defun recent-file-candidates ()
-  "Return recent files candidates."
-  ;; clean recent file
+(defun recent-file-collection ()
+  "Return recent files (candidates) collection."
+  ;; cleanup recent files
   (recentf-cleanup)
-  ;; generate recent file candidates
+  ;; return abbreviate recent files list
   (mapcar 'abbreviate-file-name recentf-list))
 
 ;;;###autoload
 (defun find-recent-file (file)
   "Find recent FILE."
+  ;; read file
   (interactive
    (list (completing-read "Find recent file: "
-                          (recent-file-candidates) nil t)))
+                          (recent-file-collection) nil t)))
   ;; open recent file
   (find-file file))
 
@@ -144,4 +146,3 @@ prompt asking for additional ARGS - arguments."
 (provide 'lex-files)
 
 ;;; lex-files.el ends here
-

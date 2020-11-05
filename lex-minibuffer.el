@@ -94,8 +94,8 @@
 (defun goto-minibuffer-window ()
   "Go to the active minibuffer, if available.
 Bind this to `completion-list-mode-map' to easily jump
-between the list of candidates present in the \\*Completions\\*
-buffer and the minibuffer."
+between the list of collection candidates present in
+the \\*Completions\\* buffer and the minibuffer."
   (interactive)
   (let ((window (active-minibuffer-window)))
     (when window
