@@ -63,7 +63,7 @@
           "<EMPTY LINE>"
         line))))
 
-(defun mark-ring-candidates ()
+(defun mark-ring-collection ()
   "Return parsed mark ring candidates."
   (cl-loop with marks = (if (mark t)
                             (cons (mark-marker) mark-ring)
@@ -82,18 +82,18 @@
 (defun goto-mark ()
   "Goto selected `mark' position."
   (interactive)
-  (let ((candidates (mark-ring-candidates))
-        (candidate nil))
+  (let ((collection (mark-ring-collection))
+        (choice nil))
     (cond
      ;; no candidates, logs and leave
-     ((not candidates)
+     ((not collection)
       (message "Mark ring is empty"))
      ;; default, goto position (char in the buffer)
      (t
-      ;; select candidate from mark-ring-candidates
-      (setq candidate (completing-read "Goto: " candidates nil t))
+      ;; select candidate from mark-ring-collection
+      (setq choice (completing-read "Goto: " collection nil t))
       ;; mark to char and finally go to it!
-      (goto-char (cdr (assoc candidate candidates)))))))
+      (goto-char (cdr (assoc choice collection)))))))
 
 (provide 'lex-mark)
 
