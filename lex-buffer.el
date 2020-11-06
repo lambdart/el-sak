@@ -231,13 +231,13 @@ Or indents the current line."
    ;; complete-symbol
    ((minibufferp)
     (unless (minibuffer-complete)
-      (complete-symbol nil)))
+      (completion-help-at-point)))
    ;; if mark is active: indent region
    (mark-active
     (indent-region (region-beginning) (region-end)))
    ;; if char isn't a space or tab: complete
    ((looking-at "\\_>")
-    (complete-symbol nil))
+    (completion-help-at-point))
    ;; default: indent
    (t (indent-according-to-mode))))
 
