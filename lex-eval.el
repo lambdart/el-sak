@@ -65,7 +65,7 @@
   (interactive)
   (let ((command
          (completing-read
-          "Eval: " (command-history-collection) nil 'confirm "(")))
+          "Eval: " (command-history-collection) nil 'confirm "(" `(command-history))))
     ;; necessary?
     (save-restriction
       ;; save point
