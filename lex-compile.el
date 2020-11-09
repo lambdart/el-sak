@@ -98,8 +98,7 @@
                 (expand-file-name
                  (read-directory-name
                   "Dir: "
-                  (concat user-emacs-directory "site-lisp/") nil 'confirm))
-                current-prefix-arg))
+                  (concat user-emacs-directory "site-lisp/") nil 'confirm))))
   ;; get files from directory
   (let ((files (directory-files dir t)))
     ;; (loop) for each file in files, verify and compile
