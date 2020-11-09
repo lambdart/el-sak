@@ -64,37 +64,6 @@ It lets the user set the transparency on a window."
   :group 'lex-uu
   :safe t)
 
-(defcustom lex-image-viewer "feh"
-  "An Image viewer program."
-  :type 'string
-  :group 'lex-uu
-  :safe t)
-
-(defcustom lex-image-viewer-options "--bg-fill"
-  "Options for the `lex-image-viewer' program."
-  :type 'string
-  :group 'lex-uu
-  :safe t)
-
-(defcustom lex-image-viewer-args "-g +0+0"
-  "An Image viewer default args."
-  :type 'string
-  :group 'lex-uu
-  :safe t)
-
-(defcustom lex-image-dir
-  (expand-file-name "~/media/images/wallpapers/")
-  "Options for the `lex-image-viewer' program."
-  :type 'string
-  :group 'lex-uu
-  :safe t)
-
-(defcustom lex-image-viewer "feh"
-  "An Image viewer program."
-  :type 'string
-  :group 'lex-uu
-  :safe t)
-
 (defcustom lex-slock "slock"
   "Command line screen locker utility."
   :type 'string
@@ -138,51 +107,6 @@ It lets the user set the transparency on a window."
                lex-transset-options
                (or opacity lex-opacity)))
     (message "Program %s not found" lex-transset)))
-
-;;;###autoload
-(defun set-wallpaper (image &optional args)
-  "Set background IMAGE using `lex-image-viewer'.
-With \\[universal-argument]] prompt a secondary one,
-asking for image viewer complementary ARGS - arguments."
-  ;; (interactive (list …)) → This is the most general way
-  ;; to fill function arguments from user input.
-  ;; This list elements will be passed as arguments to your function.
-  ;; Usually, it's like this (interactive some_lisp_code) where some_lisp_code
-  ;; evaluates to a list.
-  (interactive
-   (list
-    ;; get image file
-    (read-file-name "Image: "
-                    lex-image-dir
-                    nil
-                    t)
-
-    ;; get current prefix argument (universal argument)
-    (if current-prefix-arg
-        (read-string "Args: "
-                     lex-image-viewer-args))))
-  ;; body:
-  ;; conditions (switch/case equivalent)
-  (cond
-   ;; it is possible to execute lex-image-viewer program
-   ((not (executable-find lex-image-viewer))
-    (message "Program %s not executable" lex-image-viewer))
-   ;; verify if the file exists and it's a regular file
-   ((or (file-directory-p image) (not (file-exists-p image)))
-    (message "Image file %s not found" image))
-   ;; default call lex-image-viewer to set the wallpaper
-   (t
-    ;; Remember: In Elisp, you will often be better served by
-    ;; calling `start-process' directly, since it offers more
-    ;; control and does not impose the use of
-    ;; a shell (with its need to quote arguments).
-    ;; TODO: Research, it is really necessary to use start-process?
-    (async-shell-command
-     (format "%s %s %s %s"
-             lex-image-viewer
-             lex-image-viewer-options
-             (or args "")
-             image)))))
 
 (defun capture-screen (&optional dest)
   "Capture screen (an image) and save at DEST directory."
