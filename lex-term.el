@@ -1,13 +1,14 @@
 ;;; lex-term.el --- term mode related functions/commands -*- lexical-binding: t -*-
 ;;
-;; Author: esac <esac-io@tutanota.com>
-;; Maintainer: esac
-;; Version: 0.0.3 Alpha
+;; Author: lambdart <lambdart@protonmail.com>
+;; Maintainer: lambdart
+;; Version: 0.0.4 Alpha
+;; URL: https://github.com/lambdart/lex
 ;; Keywords: term terminal emulator
 ;;
 ;;; MIT License
 ;;
-;; Copyright (c) 2020 esac
+;; Copyright (c) 2020 lambdart
 ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy
 ;; of this software and associated documentation files (the "Software"), to deal
@@ -171,13 +172,20 @@ and binds some keystroke with `term-raw-map'."
       (when process (term-quit-subjob)))))
 
 ;;;###autoload
-(defun open-terminal (name)
+(defun open-terminal (name &optional shell)
   "Call `make-term' with the right arguments.
 Asks for the NAME of the created terminal buffer interactively.
 Get shell from the SHELL environment variable directly."
-  (interactive "sBuffer-name: ")
-  (let* ((name (if (string-empty-p name) "terminal" name))
-         (buffer (make-term name (getenv "SHELL"))))
+  (interactive
+   (list
+    (read-string "Name: ")
+    (when current-prefix-arg
+      (let ((shell (completing-read "Shell: "
+                                    '("fish" "sh" "bash") nil t)))
+        (if (string-empty-p shell) nil shell)))))
+  (let* ((name (if (string-empty-p name)
+                   "term" name))
+         (buffer (make-term name (or shell (getenv "SHELL")))))
     (if (not (buffer-live-p buffer)) nil
       (set-buffer buffer)
       ;; verify if term-mode and term-char-mode are available

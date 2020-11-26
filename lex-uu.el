@@ -1,15 +1,16 @@
 ;;; lex-uu.el --- invoke unix utilities -*- lexical-binding: t -*-
 ;;
-;; Author: esac <esac-io@tutanota.com>
-;; Version: 0.0.3 Alpha
+;; Author: lambdart <<lambdart@protonmail.com>>
+;; Maintainer: lambdart
+;; Version: 0.0.4 Alpha
+;; URL: https://github.com/lambdart/lex
 ;; Keywords: unix utilities processes process
-;; URL: https://github.com/esac-io/lex
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
 ;;; MIT License
 ;;
-;; Copyright (c) 2020 esac
+;; Copyright (c) 2020 lambdart
 ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy
 ;; of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +32,7 @@
 ;;
 ;;; Commentary:
 ;;
-;; This library add functions to invoke unix utilities
+;; This library add new functions to invoke unix utilities
 ;; from the Virtual Lisp Machine interpreter space (Emacs).
 ;;
 ;;; Code:
@@ -45,27 +46,28 @@
 
 (defcustom lex-opacity .9
   "Opacity default value.
-The opacity value is a number from 0 to 1,
-with zero being fully transparent and 1 being fully opaque."
+The opacity value is a number/float from 0 to 1,
+with zero being fully transparent and one (1 - 100%)
+being fully opaque."
   :type 'float
   :group 'lex-uu
   :safe t)
 
 (defcustom lex-transset "transset"
-  "Transset is a simple file for X servers.
-It lets the user set the transparency on a window."
+  "Program name that lets the user set the transparency
+on a window."
   :type 'string
   :group 'lex-uu
   :safe t)
 
 (defcustom lex-transset-options "-a"
-  "Options for the `lex-transset' program."
+  "Default options/switches for the `lex-transset' program."
   :type 'string
   :group 'lex-uu
   :safe t)
 
 (defcustom lex-slock "slock"
-  "Command line screen locker utility."
+  "X screen locker program."
   :type 'string
   :group 'lex-uu
   :safe t)
@@ -78,19 +80,19 @@ It lets the user set the transparency on a window."
 
 (defcustom lex-scrot-dir
   (expand-file-name "scrot" user-emacs-directory)
-  "Where to put captured screen images."
+  "The folder where captured screen images will be saved."
   :type 'string
   :group 'lex-uu
   :safe t)
 
 (defcustom lex-mixer "mixer"
-  "Mixer – set/display soundcard mixer values."
+  "Mixer program – set/display soundcard mixer values."
   :type 'string
   :group 'lex-uu
   :safe t)
 
 (defcustom lex-mixer-factor 5
-  "Volume factor."
+  "Volume up/down factor."
   :type 'integer
   :group 'lex-uu
   :safe t)
@@ -114,8 +116,7 @@ It lets the user set the transparency on a window."
    (list
     ;; if prefix, read directory name
     (when current-prefix-arg
-      (read-directory-name
-       "Dir: " nil default-directory t))))
+      (read-directory-name "Dir: " nil default-directory t))))
   ;; body:
   (let ((default-directory (expand-file-name
                             (or dest lex-scrot-dir)))

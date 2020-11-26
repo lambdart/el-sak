@@ -1,16 +1,16 @@
 ;;; lex-load.el --- load and load-path related functions/commands -*- lexical-binding: t -*-
 ;;
-;; Author: esac <esac-io@tutanota.com>
-;; Maintainer: esac
-;; Version: 0.0.3 Alpha
-;; URL: https://github.com/esac-io/lex
+;; Author: lambdart <lambdart@protonmail.com>
+;; Maintainer: lambdart
+;; Version: 0.0.4 Alpha
+;; URL: https://github.com/lambdart/lex
 ;; Keywords: load-path load
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
 ;;; MIT License
 ;;
-;; Copyright (c) 2020 esac
+;; Copyright (c) 2020 lambdart
 ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy
 ;; of this software and associated documentation files (the "Software"), to deal
