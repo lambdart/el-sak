@@ -1,28 +1,28 @@
 #+TITLE: Lex
-#+AUTHOR: esac
-#+EMAIL: esac-io@tutanota.com
+#+AUTHOR: lambdart
+#+EMAIL: lambdart@protonmail
 #+DESCRIPTION: little hacks for vanilla Emacs
 #+PROPERTY: header-args :tangle no
 
-  Libraries Extensions - little hacks for vanilla Emacs.
+Libraries Extensions - little hacks for vanilla Emacs.
 
 * Introduction
 
-  An simple library that extends builtin and others external
-  libraries - a place to put small new functions to be evaluated -
-  little hacks to improve =Emacs= overall usability keeping everything
-  more organized and easy to manage.
+  An simple library that extends other libraries (mainly builtin ones) -
+  a place to put new functions to be evaluated -
+  little hacks to improve =Emacs (our lisp machine)= overall
+  usability keeping everything more organized, providing
+  a safe place to add new code/hacks.
 
   The =Lex= is a abbreviation for =Libraries Extensions=.
 
 * Overview
 
   On =Emacs= every user also is a developer, we twist and extend
-  your programmable platform (=VIRTUAL LISP MACHINE=)
-  to meet our needs, to automatize boring tasks,
-  to become more productive - using smart data transformations
-  to quickly create new features, analyse data and processes of interest,
-  and more, much more!
+  your programmable platform (=LISP MACHINE=) to meet our needs,
+  to automatize boring tasks, to become more productive -
+  using smart data transformations to quickly create new features,
+  analyse data and processes of interest, and more, much more!
 
   This is probably a continuum for the =Emacs= user life spam,
   =forever= an =user developer=, taking more and more control,
@@ -38,7 +38,7 @@
 
 * Version
 
-  - 0.0.3 Alpha (Experimental)
+  - 0.0.4 Alpha
 
 * Dependencies
 ** Elisp
@@ -54,13 +54,12 @@
    - cl-macs
    - subr-x
 
-** Non-Elisp (Unix Binaries)
+** Unix
 
-   - feh
    - mixer
    - scrot
    - slock
-   - transset
+   - transset (compton)
 
 * Tested on
 
@@ -70,13 +69,13 @@
 
 * Install
 ** Manually
-  Clone =Lex= repository to a arbitrary location:
+   Clone =Lex= repository to a arbitrary location:
 
-  #+BEGIN_SRC sh
+   #+BEGIN_SRC sh
 
-  $ git clone https://github.com/esac-io/lex ~/.emacs.d/site-elisp/lex
+   $ git clone https://github.com/lambdart/lex ~/.emacs.d/site-elisp/lex
 
-  #+END_SRC
+   #+END_SRC
 
    Compile and generate the lex-autoloads.el file.
 
@@ -86,31 +85,51 @@
 
    #+END_SRC
 
-  Add =Lex= directory to =load-path= in your
-  Emacs initialization file (~init.el~) and load it.
+   Add =Lex= directory to =load-path= in your
+   Emacs initialization file (~init.el~) and load it.
 
-  #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
 
-  ;; add to load-path
-  (add-to-list 'load-path "/replace/me/to/lex/full/path")
+   ;; add to load-path
+   (add-to-list 'load-path "/replace/me/to/lex/full/path")
 
-  ;; load lex basic features
-  (require 'lex-autoloads nil t)
+   ;; load lex basic features
+   (require 'lex-autoloads nil t)
 
-  #+END_SRC
+   #+END_SRC
 
-  - Note: For a more dynamic approach, load one by one, for example:
-    - =M-x load-library RET lex-uu RET=
-    - =M-x load-library RET lex-load-path RET=
-    - ...
+   - Note: For a more dynamic approach, load one by one, for example:
+     - =M-x load-library RET lex-uu RET=
+     - =M-x load-library RET lex-load-path RET=
+     - ...
 
 * Customize
 
-  To see all the options inside =Emacs= and to customize it,
-  uses: =M-x customize-group RET lex-unix RET=.
+  * Note: To see all the options from =Emacs= directly, and to customize it,
+    just type: =M-x customize-group RET lex-uu RET=.
 
-  Just a few options are available related to the =Unix= utilities:
-  =transset=, =feh=, =scrot=, =mixer= and =slock=.
+  - =lex-opacity= :: The opacity value is a number/float from 0 to 1,
+    with zero being fully transparent and one (1 - 100%) being fully
+    opaque. Default: 0.9
+
+  - =lex-transset= :: Program name that lets the user set the
+    transparency on a window. Default: "transset"
+
+  - =lex-transset-options= :: Default options/switches for the
+    `lex-transset' program. Default: "-a"
+
+  - =lex-slock= :: X screen locker program. Default: "slock"
+
+  - =lex-scrot= :: Command line screen capture utility.
+     Default: "scrot"
+
+  - =lex-scrot-dir= :: The folder where captured screen images will be
+    saved. Default: ~/.emacs.d/scrot/
+
+  - =lex-mixer= :: Mixer program – to set soundcard mixer values.
+    Default: "mixer"
+
+  - =lex-mixer-factor= :: Volume up/down factor. Default: 5
 
 * LICENSE
   MIT
