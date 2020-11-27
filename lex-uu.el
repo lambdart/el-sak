@@ -110,6 +110,25 @@ on a window."
                (or opacity lex-opacity)))
     (message "Program %s not found" lex-transset)))
 
+;;;###autoload
+(defun set-window-transparency (&optional opacity)
+  "Set OPACITY transparency in selected X window."
+  ;; map opacity argument when invoked interactively
+  (interactive
+   (list (read-number "Opacity: " lex-opacity)))
+  ;; try/catch equivalent
+  (cond
+   ;; executable available?
+   ((not (executable-find lex-transset))
+    (message "Program %s not found" lex-transset))
+   ;; default: call lex-transset program
+   (t
+    (async-shell-command (format "%s %s %.1f"
+                                 lex-transset
+                                 "-c"
+                                 (or opacity lex-opacity))))))
+
+;;;###autoload
 (defun capture-screen (&optional dest)
   "Capture screen (an image) and save at DEST directory."
   (interactive
