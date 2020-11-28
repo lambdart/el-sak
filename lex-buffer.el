@@ -153,7 +153,7 @@ If ARG is positive UP else DOWN."
 
 ;;;###autoload
 (defun copy-line (&optional arg)
-  "Copy lines, do not kill then.
+  "Copy lines without kill then.
 With prefix argument ARG, kill (copy) that many lines from point."
   (interactive "p")
   (let ((buffer-read-only t)
@@ -161,6 +161,15 @@ With prefix argument ARG, kill (copy) that many lines from point."
     (save-excursion
       (move-beginning-of-line nil)
       (kill-line arg))))
+
+;;;###autoload
+(defun copy-buffer-file-name (buffer-name)
+  "Copy BUFFER file name."
+  (interactive "bBuffer: ")
+  (let ((filename (buffer-file-name (get-buffer buffer-name))))
+    (if (not filename)
+        (message "Buffer %s has no file associated." buffer-name)
+      (kill-new filename nil))))
 
 ;;;###autoload
 (defun kill-region-or-backward-word ()
