@@ -239,4 +239,3 @@ text file output name."
 (provide 'lex-uu)
 
 ;;; lex-uu.el ends here
-
