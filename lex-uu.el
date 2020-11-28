@@ -60,8 +60,8 @@ on a window."
   :group 'lex-uu
   :safe t)
 
-(defcustom lex-transset-options "-a"
-  "Default options/switches for the `lex-transset' program."
+(defcustom lex-transset-args "-a"
+  "Default arguments/switches for the `lex-transset' program."
   :type 'string
   :group 'lex-uu
   :safe t)
@@ -97,36 +97,37 @@ on a window."
   :group 'lex-uu
   :safe t)
 
-;;;###autoload
-(defun set-frame-transparency (&optional opacity)
-  "Set OPACITY transparency in current frame."
+(defun set-transparency (opacity &optional args)
+  "Set OPACITY transparency passing ARGS to `lex-transset' program."
+  ;; maps function arguments when called interactively
   (interactive
-   (list (read-number "Opacity: " lex-opacity)))
-  (if (executable-find lex-transset)
-      (async-shell-command
-       (format "%s %s %.1f"
-               lex-transset
-               lex-transset-options
-               (or opacity lex-opacity)))
-    (message "Program %s not found" lex-transset)))
+   (list
+    ;; set opacity
+    (read-number "Opacity: " lex-opacity)
+    ;; verify universal argument (implicit)
+    (when current-prefix-arg
+      (read-string "Args: " lex-transset-args))))
+  ;; verify if 'transset' executable is available
+  (if (not (executable-find lex-transset))
+      (message "Program %s not found" lex-transset)
+    ;; invoke the command 'transset' asynchronous
+    (async-shell-command
+     (format "%s %s %.1f" lex-transset (or args lex-transset-args) opacity))))
 
 ;;;###autoload
-(defun set-window-transparency (&optional opacity)
-  "Set OPACITY transparency in selected X window."
+(defun set-frame-transparency ()
+  "Set transparency in current frame."
+  (interactive)
+  (call-interactively 'set-transparency))
+
+;;;###autoload
+(defun set-window-transparency (opacity)
+  "Set OPACITY transparency in selected X window (including EMACS)."
   ;; map opacity argument when invoked interactively
   (interactive
    (list (read-number "Opacity: " lex-opacity)))
-  ;; try/catch equivalent
-  (cond
-   ;; executable available?
-   ((not (executable-find lex-transset))
-    (message "Program %s not found" lex-transset))
-   ;; default: call lex-transset program
-   (t
-    (async-shell-command (format "%s %s %.1f"
-                                 lex-transset
-                                 "-c"
-                                 (or opacity lex-opacity))))))
+  ;; set transparency using 'transset' -c argument
+  (set-transparency opacity "-c"))
 
 ;;;###autoload
 (defun capture-screen (&optional dest)
