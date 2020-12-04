@@ -161,15 +161,13 @@ and binds some keystroke with `term-raw-map'."
 ;;;###autoload
 (defun term-kill-buffer-hook ()
   "Function to be added in the `kill-buffer-hook' list."
-  ;; get current buffer (the buffer being killed)
   ;; get the current buffer associate process
-  (let* ((buffer (current-buffer))
-         (process (get-buffer-process buffer)))
+  (let ((process (get-buffer-process (current-buffer))))
     ;; verify if term is the major mode from the current buffer (implicit)
     (if (not (eq major-mode 'term-mode)) nil
       ;; if the process is active quit it, otherwise
-      ;; do nothing: witch means just kill the buffer (continue)
-      (when process (term-quit-subjob)))))
+      ;; do nothing (continue): witch means just kill the buffer (implicit)
+      (and process (term-kill-subjob)))))
 
 ;;;###autoload
 (defun open-terminal (name &optional shell)
