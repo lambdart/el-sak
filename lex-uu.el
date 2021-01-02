@@ -97,6 +97,7 @@ on a window."
   :group 'lex-uu
   :safe t)
 
+;;;###autoload
 (defun set-transparency (opacity &optional args)
   "Set OPACITY transparency passing ARGS to `lex-transset' program."
   ;; maps function arguments when called interactively

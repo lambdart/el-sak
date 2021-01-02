@@ -34,7 +34,11 @@
 ;;
 ;;; Code:
 
+(eval-when-compile
+  (require 'cl-macs))
+
 (require 'term)
+(require 'subr-x)
 
 (defcustom term-unbind-key-list
   '("C-z" "C-x" "C-c" "C-h" "C-y" "<ESC>")
@@ -76,8 +80,10 @@ If you do not like default setup, modify it, with (KEY . COMMAND)."
 
 ;;;###autoload
 (defun term-send-return ()
-  "Use term-send-raw-string \"\C-m\" instead term-send-input.
-Because term-send-input have bug that will duplicate input when you C-a and C-m in terminal."
+  "Use `term-send-raw-string' instead of `term-send-input'.
+Because `term-send-input' duplicates input when
+you type Ctrl-M in the in buffer terminal
+emulator."
   (interactive)
   (term-send-raw-string "\C-m"))
 
@@ -119,25 +125,24 @@ Because term-send-input have bug that will duplicate input when you C-a and C-m 
 
 ;;;###autoload
 (defun term-send-quote ()
-  "Quote the next character in term-mode.
+  "Quote the next character in `term-mode'.
 Similar to how `quoted-insert' works in a regular buffer."
   (interactive)
   (term-send-raw-string "\C-v"))
 
 ;;;###autoload
 (defun term-send-M-x ()
-  "Type M-x in term-mode."
+  "Type META-X in `term-mode' side effect invoke the `minibuffer'."
   (interactive)
   (term-send-raw-string "\ex"))
 
 ;;;###autoload
 (defun term-setup-keystroke ()
   "Keystroke setup of `term-char-mode'.
-
-By default, the key bindings of `term-char-mode' conflict with user's keystroke.
-So this function unbinds some keys with `term-raw-map',
-and binds some keystroke with `term-raw-map'."
-
+By default, the key bindings of `term-char-mode' conflict
+with user's keystroke. So this function unbinds some keys
+with `term-raw-map', and binds some keystroke
+with `term-raw-map'."
   (let (bind-key bind-command)
     ;; Unbind base key that conflict with user's keys-tokes.
     (cl-dolist (unbind-key term-unbind-key-list)
@@ -169,6 +174,15 @@ and binds some keystroke with `term-raw-map'."
       ;; do nothing (continue): witch means just kill the buffer (implicit)
       (and process (term-kill-subjob)))))
 
+(defun term-uniq-name (name)
+  "Return term uniq NAME if the string name it's equal to 'term'."
+  (if (not (string-equal name "term")) name
+    (let ((n 0)
+          (regex (concat "^\*" name)))
+      (dolist (buffer (buffer-list))
+        (setq n (+ n (if (string-match-p regex (buffer-name buffer)) 1 0))))
+      (if (= n 0) name (format "%s<%d>" name (+ n 1))))))
+
 ;;;###autoload
 (defun open-terminal (name &optional shell)
   "Call `make-term' with the right arguments.
@@ -176,23 +190,27 @@ Asks for the NAME of the created terminal buffer interactively.
 Get shell from the SHELL environment variable directly."
   (interactive
    (list
-    (read-string "Name: ")
+    (read-string "Term: ")
     (when current-prefix-arg
       (let ((shell (completing-read "Shell: "
                                     '("fish" "sh" "bash") nil t)))
         (if (string-empty-p shell) nil shell)))))
-  (let* ((name (if (string-empty-p name)
-                   "term" name))
+  (let* ((name (term-uniq-name
+                (if (string-empty-p name)
+                    "term"
+                  name)))
          (buffer (make-term name (or shell (getenv "SHELL")))))
+    ;; extra check
     (if (not (buffer-live-p buffer)) nil
-      (set-buffer buffer)
-      ;; verify if term-mode and term-char-mode are available
-      (when (and (fboundp 'term-mode)
-                 (fboundp 'term-char-mode))
-        (funcall 'term-mode)
-        (funcall 'term-char-mode))
-      ;; switch to the term buffer
-      (switch-to-buffer buffer))))
+      ;; change buffer mode
+      (with-current-buffer buffer
+        ;; verify if term-mode and term-char-mode are available
+        (when (and (fboundp 'term-mode)
+                   (fboundp 'term-char-mode))
+          (funcall 'term-mode)
+          (funcall 'term-char-mode))
+        ;; switch to the term buffer
+        (switch-to-buffer buffer)))))
 
 (provide 'lex-term)
 

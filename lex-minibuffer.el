@@ -87,8 +87,7 @@
    (let ((symbol (read `,candidate)))
      (when (symbolp symbol)
        (describe-symbol symbol)
-       (select-window
-        (minibuffer-window))))))
+       (select-window (minibuffer-window))))))
 
 ;;;###autoload
 (defun goto-minibuffer-window ()

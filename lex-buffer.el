@@ -228,27 +228,25 @@ With argument ARG not nil or 1, move forward ARG - 1 lines first."
 ;;;###autoload
 (defun complete-at-point-or-indent ()
   "This smart tab is a `minibuffer' compliant.
-
 It acts as usual in the `minibuffer'.
 Case mark is active, indents region.
 Case point is at the end of a symbol, expands it.
 Or indents the current line."
-
   (interactive)
   (cond
    ;; if minibuffer active: unless a valid completion:
-   ;; complete-symbol
    ((minibufferp)
     (unless (minibuffer-complete)
-      (completion-help-at-point)))
+      (funcall 'completion-at-point)))
    ;; if mark is active: indent region
    (mark-active
     (indent-region (region-beginning) (region-end)))
    ;; if char isn't a space or tab: complete
    ((looking-at "\\_>")
-    (completion-help-at-point))
+    (funcall 'completion-at-point))
    ;; default: indent
    (t (indent-according-to-mode))))
+
 
 (provide 'lex-buffer)
 
