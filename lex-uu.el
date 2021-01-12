@@ -53,6 +53,12 @@ being fully opaque."
   :group 'lex-uu
   :safe t)
 
+(defcustom lex-window-opacity .7
+  "X window opacity default value."
+  :type 'float
+  :group 'lex-uu
+  :safe t)
+
 (defcustom lex-transset "transset"
   "Program name that lets the user set the transparency
 on a window."
@@ -126,7 +132,7 @@ on a window."
   "Set OPACITY transparency in selected X window (including EMACS)."
   ;; map opacity argument when invoked interactively
   (interactive
-   (list (read-number "Opacity: " lex-opacity)))
+   (list (read-number "Opacity: " lex-window-opacity)))
   ;; set transparency using 'transset' -c argument
   (set-transparency opacity "-c"))
 
@@ -146,6 +152,7 @@ on a window."
      ;; if screen capture utility
      (scrot
       (funcall 'start-process scrot nil scrot)
+      (message nil)
       (message "Image saved at %s" default-directory))
      ;; default
      (t
