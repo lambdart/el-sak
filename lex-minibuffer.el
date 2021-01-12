@@ -47,91 +47,100 @@
 (require 'delsel)
 (require 'minibuffer)
 (require 'help-fns)
+(require 'icomplete)
 
 (defmacro minibuffer-action (&rest body)
   "Check `minibuffer' if active and evaluate BODY forms (action)."
-  `(when (minibufferp)
-     (let ((candidate (car completion-all-sorted-completions)))
-       ,@body)))
+  `(unless (not (minibufferp))
+     ;; set completion (clean it from any properties)
+     (let ((completion (substring-no-properties
+                        (car completion-all-sorted-completions))))
+       ;; when completion evaluate the rest of the body (the action code)
+       ;; otherwise do nothing
+       (when completion ,@body))))
 
 ;;;###autoload
-(defun minibuffer-kill-top-candidate ()
-  "Put `minibuffer' completion candidate at the top of the `kill-ring'."
+(defun minibuffer-kill-current-completion ()
+  "Put `minibuffer' completion at the top of the `kill-ring'."
   (interactive)
-  (minibuffer-action (kill-new `,candidate)))
+  ;; kill new (copy to kill ring)
+  ;; current completion
+  (minibuffer-action
+   (kill-new `,completion)))
 
 ;;;###autoload
-(defun minibuffer-insert-top-candidate ()
-  "Insert `minibuffer' completion candidate in current active buffer."
+(defun minibuffer-insert-completion-at-point ()
+  "Insert `minibuffer' top completion at point."
   (interactive)
   (minibuffer-action
-   (with-minibuffer-selected-window
-     (insert `,candidate)
-     (minibuffer-keyboard-quit))))
+   (let ((beg (if (window-minibuffer-p) (minibuffer-prompt-end)
+                (nth 0 completion-in-region--data)))
+         (end (if (window-minibuffer-p) (point-max)
+                (nth 1 completion-in-region--data))))
+     ;; delete region at point
+     (delete-region beg end)
+     ;; insert completion
+     (insert `,completion))))
 
 ;;;###autoload
-(defun minibuffer-yank-top-candidate ()
-  "Insert `minibuffer' completion candidate inline."
-  (interactive)
-  (minibuffer-action
-   (beginning-of-line)
-   (kill-new `,candidate)
-   (yank)
-   (kill-line)))
+  (defun minibuffer-insert-completion-in-buffer ()
+    "Insert `minibuffer' completion in current active buffer."
+    (interactive)
+    (minibuffer-action
+     (unless buffer-read-only
+       (with-minibuffer-selected-window
+         (insert `,completion)
+         (minibuffer-keyboard-quit)))))
 
 ;;;###autoload
-(defun minibuffer-describe-top-candidate ()
-  "Describe symbol using top-most `minibuffer' completion candidate."
-  (interactive)
-  (minibuffer-action
-   (let ((symbol (read `,candidate)))
-     (when (symbolp symbol)
-       (describe-symbol symbol)
-       (select-window (minibuffer-window))))))
+  (defun minibuffer-describe-current-completion ()
+    "Describe symbol using top-most `minibuffer' completion candidate."
+    (interactive)
+    (minibuffer-action
+     (save-excursion
+       (let ((symbol (read `,completion)))
+         (when (symbolp symbol)
+           (describe-symbol symbol)
+           (message nil))))))
 
 ;;;###autoload
-(defun goto-minibuffer-window ()
-  "Go to the active minibuffer, if available.
-Bind this to `completion-list-mode-map' to easily jump
-between the list of collection candidates present in
-the \\*Completions\\* buffer and the minibuffer."
-  (interactive)
-  (let ((window (active-minibuffer-window)))
-    (when window
-      (select-window window nil))))
+  (defun select-minibuffer-window ()
+    "Go to the active minibuffer, if available."
+    (interactive)
+    (let ((window (active-minibuffer-window)))
+      (when window (select-window window nil))))
 
 ;;;###autoload
-(defun goto-minibuffer-or-call-it ()
-  "Go to minibuffer window or call `execute-extended-command'."
-  (interactive)
-  (let ((window (active-minibuffer-window)))
-    (if (not window)
-        (call-interactively 'execute-extended-command)
-      (select-window window nil))))
+  (defun select-completions-window ()
+    "Go to the active completions window, if available."
+    (interactive)
+    (let ((window (get-buffer-window "*Completions*")))
+      (when window (select-window window nil))))
 
 ;;;###autoload
-(defun goto-completions-window ()
-  "Go to the active completions window, if available."
-  (interactive)
-  (let ((window (get-buffer-window "*Completions*")))
-    (when window
-      (select-window window nil))))
+  (defun goto-minibuffer-or-call-it ()
+    "Go to minibuffer window or call `execute-extended-command'."
+    (interactive)
+    (let ((window (active-minibuffer-window)))
+      (if (not window)
+          (call-interactively 'execute-extended-command)
+        (select-window window nil))))
 
 ;;;###autoload
-(defun goto-minibuffer-or-completions-window ()
-  "Focus the active minibuffer or the \\*Completions\\*.
+  (defun goto-minibuffer-or-completions-window ()
+    "Focus the active minibuffer or the \\*Completions\\*.
 If both the minibuffer and the Completions are present, this
 command will first move per invocation to the former, then the
 latter, and then continue to switch between the two."
-  (interactive)
-  (let ((minibuffer-window (active-minibuffer-window))
-        (completions-window (get-buffer-window "*Completions*")))
-    (cond
-     ((and minibuffer-window (not (minibufferp)))
-      (select-window minibuffer-window nil))
-     ((and completions-window (get-buffer "*Completions*"))
-      (select-window completions-window t)))))
+    (interactive)
+    (let ((minibuffer-window (active-minibuffer-window))
+          (completions-window (get-buffer-window "*Completions*")))
+      (cond
+       ((and minibuffer-window (not (minibufferp)))
+        (select-window minibuffer-window nil))
+       ((and completions-window (get-buffer "*Completions*"))
+        (select-window completions-window t)))))
 
-(provide 'lex-minibuffer)
+  (provide 'lex-minibuffer)
 
 ;;; lex-minibuffer.el ends here
