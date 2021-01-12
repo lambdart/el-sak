@@ -150,11 +150,16 @@ the \\[minibuffer]."
       (display-buffer buffer))))
 
 ;;;###autoload
-(defun reload-library (library)
-  "Reload LIBRARY."
-  (interactive (list (read-library-name)))
+(defun reload-library (library &optional force)
+  "Reload target LIBRARY.
+When optional argument FORCE is non-nil, unload feature
+and its dependents."
+  (interactive (list (read-library-name)
+                     current-prefix-arg))
   ;; unload library
-  (unload-feature (read library) t)
+  (funcall 'unload-feature
+           (read library)
+           (or force nil))
   ;; load it
   (load-library library))
 
