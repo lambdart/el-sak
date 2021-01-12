@@ -164,7 +164,7 @@ With prefix argument ARG, kill (copy) that many lines from point."
 
 ;;;###autoload
 (defun copy-buffer-file-name (buffer-name)
-  "Copy BUFFER file name."
+  "Copy (`kill-new') BUFFER-NAME filename."
   (interactive "bBuffer: ")
   (let ((filename (buffer-file-name (get-buffer buffer-name))))
     (if (not filename)
@@ -237,16 +237,15 @@ Or indents the current line."
    ;; if minibuffer active: unless a valid completion:
    ((minibufferp)
     (unless (minibuffer-complete)
-      (funcall 'completion-at-point)))
+      (call-interactively 'completion-at-point)))
    ;; if mark is active: indent region
    (mark-active
     (indent-region (region-beginning) (region-end)))
    ;; if char isn't a space or tab: complete
    ((looking-at "\\_>")
-    (funcall 'completion-at-point))
+    (call-interactively 'completion-at-point))
    ;; default: indent
    (t (indent-according-to-mode))))
-
 
 (provide 'lex-buffer)
 
