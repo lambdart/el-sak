@@ -42,7 +42,7 @@
 
 (defcustom term-unbind-key-list
   '("C-z" "C-x" "C-c" "C-h" "C-y" "<ESC>")
-  "The key list that will need to be unbind."
+  "The key list that will be unbind."
   :type 'list
   :group 'term)
 
@@ -67,8 +67,7 @@
     ("M-d" . term-send-delete-word)
     ("M-," . term-send-raw)
     ("M-." . comint-dynamic-complete))
-  "The key alist that will rebounded.
-If you do not like default setup, modify it, with (KEY . COMMAND)."
+  "The key alist that will rebounded."
   :type 'alist
   :group 'term)
 
@@ -141,37 +140,20 @@ Similar to how `quoted-insert' works in a regular buffer."
   "Keystroke setup of `term-char-mode'.
 By default, the key bindings of `term-char-mode' conflict
 with user's keystroke. So this function unbinds some keys
-with `term-raw-map', and binds some keystroke
-with `term-raw-map'."
-  (let (bind-key bind-command)
-    ;; Unbind base key that conflict with user's keys-tokes.
-    (cl-dolist (unbind-key term-unbind-key-list)
-      (cond
-       ((stringp unbind-key) (setq unbind-key (read-kbd-macro unbind-key)))
-       ((vectorp unbind-key) nil)
-       (t (signal 'wrong-type-argument (list 'array unbind-key))))
-      (define-key term-raw-map unbind-key nil))
-    ;; Add some i use keys.
-    ;; If you don't like my keystroke,
-    ;; just modified `term-bind-key-alist'
-    (cl-dolist (element term-bind-key-alist)
-      (setq bind-key (car element))
-      (setq bind-command (cdr element))
-      (cond
-       ((stringp bind-key) (setq bind-key (read-kbd-macro bind-key)))
-       ((vectorp bind-key) nil)
-       (t (signal 'wrong-type-argument (list 'array bind-key))))
-      (define-key term-raw-map bind-key bind-command))))
+with `term-raw-map', and binds some keystroke with `term-raw-map'."
+  ;; unbind base key that conflict with user's keys-tokes.
+  (dolist (key term-unbind-key-list)
+    (define-key term-raw-map (read-kbd-macro key) nil))
+  ;; bind `term-bind-key-alist' keys
+  (dolist (element term-bind-key-alist)
+    (define-key term-raw-map (read-kbd-macro (car element)) (cdr element))))
 
 ;;;###autoload
 (defun term-kill-buffer-hook ()
   "Function to be added in the `kill-buffer-hook' list."
   ;; get the current buffer associate process
   (let ((process (get-buffer-process (current-buffer))))
-    ;; verify if term is the major mode from the current buffer (implicit)
     (if (not (eq major-mode 'term-mode)) nil
-      ;; if the process is active quit it, otherwise
-      ;; do nothing (continue): witch means just kill the buffer (implicit)
       (and process (term-kill-subjob)))))
 
 (defun term-uniq-name (name)
@@ -184,7 +166,7 @@ with `term-raw-map'."
       (if (= n 0) name (format "%s<%d>" name (+ n 1))))))
 
 ;;;###autoload
-(defun open-terminal (name &optional shell)
+(defun term-make (name &optional shell)
   "Call `make-term' with the right arguments.
 Asks for the NAME of the created terminal buffer interactively.
 Get shell from the SHELL environment variable directly."
@@ -193,12 +175,10 @@ Get shell from the SHELL environment variable directly."
     (read-string "Term: ")
     (when current-prefix-arg
       (let ((shell (completing-read "Shell: "
-                                    '("fish" "sh" "bash") nil t)))
+                                    '("fish" "sh" "bash")
+                                    nil t)))
         (if (string-empty-p shell) nil shell)))))
-  (let* ((name (term-uniq-name
-                (if (string-empty-p name)
-                    "term"
-                  name)))
+  (let* ((name (term-uniq-name (if (string-empty-p name) "term" name)))
          (buffer (make-term name (or shell (getenv "SHELL")))))
     ;; extra check
     (if (not (buffer-live-p buffer)) nil
