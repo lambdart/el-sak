@@ -115,6 +115,14 @@ Otherwise, the selected region will be duplicated."
         (goto-char p)
         (setq i (- i 1))))))
 
+;;;###autoload
+(defun quote-region ()
+  "Quote the selected region."
+  (interactive)
+  (save-excursion
+    (when (region-active-p)
+      (insert-pair 1 ?\" ?\"))))
+
 (defun transpose-line (arg)
   "Transpose line ARG set the direction.
 If ARG is positive UP else DOWN."
