@@ -64,7 +64,6 @@
       ;; execute it
       (shell-command command (or buffer nil)))))
 
-;;;###autoload
 (defun recent-file-collection ()
   "Return recent files (candidates) collection."
   ;; cleanup recent files
