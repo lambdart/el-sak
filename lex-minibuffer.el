@@ -63,10 +63,7 @@
 (defun minibuffer-kill-current-completion ()
   "Put `minibuffer' completion at the top of the `kill-ring'."
   (interactive)
-  ;; kill new (copy to kill ring)
-  ;; current completion
-  (minibuffer-action
-   (kill-new `,completion)))
+  (minibuffer-action (kill-new `,completion)))
 
 ;;;###autoload
 (defun minibuffer-insert-completion-at-point ()
@@ -110,14 +107,14 @@
   "Go to the active minibuffer, if available."
   (interactive)
   (let ((window (active-minibuffer-window)))
-    (when window (select-window window nil))))
+    (and window (select-window window nil))))
 
 ;;;###autoload
 (defun select-completions-window ()
   "Go to the active completions window, if available."
   (interactive)
   (let ((window (get-buffer-window "*Completions*")))
-    (when window (select-window window nil))))
+    (and window (select-window window nil))))
 
 ;;;###autoload
 (defun goto-minibuffer-or-call-it ()
@@ -127,21 +124,6 @@
     (if (not window)
         (call-interactively 'execute-extended-command)
       (select-window window nil))))
-
-;;;###autoload
-(defun goto-minibuffer-or-completions-window ()
-  "Focus the active minibuffer or the \\*Completions\\*.
-If both the minibuffer and the Completions are present, this
-command will first move per invocation to the former, then the
-latter, and then continue to switch between the two."
-  (interactive)
-  (let ((minibuffer-window (active-minibuffer-window))
-        (completions-window (get-buffer-window "*Completions*")))
-    (cond
-     ((and minibuffer-window (not (minibufferp)))
-      (select-window minibuffer-window nil))
-     ((and completions-window (get-buffer "*Completions*"))
-      (select-window completions-window t)))))
 
 (provide 'lex-minibuffer)
 
