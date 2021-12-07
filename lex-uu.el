@@ -60,8 +60,7 @@ being fully opaque."
   :safe t)
 
 (defcustom lex-transset "transset"
-  "Program name that lets the user set the transparency
-on a window."
+  "Transset command."
   :type 'string
   :group 'lex-uu
   :safe t)
@@ -87,6 +86,12 @@ on a window."
 (defcustom lex-scrot-dir
   (expand-file-name "scrot" user-emacs-directory)
   "The folder where captured screen images will be saved."
+  :type 'string
+  :group 'lex-uu
+  :safe t)
+
+(defcustom lex-cmd-fmt "%s vol %s%d"
+  "Command format."
   :type 'string
   :group 'lex-uu
   :safe t)
@@ -167,37 +172,36 @@ on a window."
     (async-shell-command lex-slock)))
 
 ;;;###autoload
-(defun set-volume (value &optional direction)
-  "Set volume VALUE in up or down DIRECTION."
+(defun set-volume (value &optional action)
+  "Set volume VALUE/ACTION."
   (interactive
    (list
     (read-number "Volume: " 50)))
-  (let* ((mixer (executable-find lex-mixer))
-         (direction (or direction :set))
-         (cmd (cond
-               ((eq direction :up)   (format "%s vol +%d" mixer value))
-               ((eq direction :down) (format "%s vol -%d" mixer value))
-               ((eq direction :set)  (format "%s vol %d" mixer value))
-               ;; nop equivalent for this operation
-               (t (format "%s vol -0" mixer)))))
-    (cond
-     ;; case mixer: raise volume
-     (mixer
-      (async-shell-command cmd))
-     ;; default
-     (t (message "Mixer command not found")))))
+  (let ((mixer (executable-find lex-mixer)))
+    (if (not mixer)
+        (message "%s" "Mixer command not found")
+      (shell-command
+       (let* ((action (or action :set))
+              (command (format (concat "%s vol "
+                                       (cond
+                                        ((eq action :raise) "+")
+                                        ((eq action :lower) "-")
+                                        ((eq action :set)   "")
+                                        (t (format "-" )))
+                                       "%d")
+                               mixer value)))
+         command)))))
 
 ;;;###autoload
-(defun increase-volume (&optional n)
+(defun raise-volume (&optional n)
   "Increase volume by a factor of 5.
 If \\[universal-argument] is used, display a prompt
 asking for the volume value - N."
   (interactive
    (list
-    (when current-prefix-arg
-      (read-number "Factor: " 5))))
+    (and current-prefix-arg (read-number "Factor: " 5))))
   (let ((factor (or n lex-mixer-factor)))
-    (set-volume factor :up)
+    (set-volume factor :raise)
     (message "Volume raised: +%d" factor)))
 
 ;;;###autoload
@@ -210,7 +214,7 @@ asking for the volume value - N."
     (when current-prefix-arg
       (read-number "Factor: " 5))))
   (let ((factor (or n lex-mixer-factor)))
-    (set-volume factor :down)
+    (set-volume factor :lower)
     (message "Volume lower: -%d" factor)))
 
 ;;;###autoload
@@ -229,20 +233,20 @@ text file output name."
   ;; map function arguments
   (interactive
    (list
-    (read-file-name "File:" nil nil t)
+    (read-file-name "File: " nil nil t)
     (when current-prefix-arg
       (read-file-name "Fout:" nil nil))))
   ;; set auxiliary params
   (let* ((file (expand-file-name pdf))
-         (fout (if (not txt) nil (expand-file-name txt)))
-         (cmd (format "pdftotext '%s'" file)))
+         (fout (when txt (expand-file-name txt)))
+         (cmd (format "/usr/local/libexec/xpdf/pdftotext '%s'" file)))
     ;; verify if file exists
     (when (file-exists-p file)
-      ;; parse output file if necessary
-      (if fout
-          (setq cmd (concat cmd (format " '%s'" fout))))
-      ;; finally execute pdftotext command
-      (async-shell-command cmd))))
+      (async-shell-command
+       ;; parse output file if necessary
+       (if (not fout)
+           cmd
+         (concat cmd (format " '%s'" fout)))))))
 
 (provide 'lex-uu)
 
