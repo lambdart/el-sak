@@ -45,6 +45,7 @@
 
 (require 'compile)
 (require 'subr-x)
+(require 'cl-seq)
 
 ;;;###autoload
 (defun add-compile-command (command)
@@ -66,12 +67,15 @@
   ;; maps COMMAND argument interactively
   (interactive
    (list
-    (completing-read "Compile command: " compile-history
-                     nil 'confirm ""
+    (completing-read "Command: "
+                     compile-history
+                     nil
+                     'confirm
+                     ""
                      `(compile-history))))
   ;; compile using the right command
-  (when (not (string-empty-p compile-command))
-    (compile command)))
+  (or (string-empty-p command)
+      (compile command)))
 
 ;;;###autoload
 (defun byte-compile-current-file ()
@@ -86,9 +90,8 @@
       (save-buffer)
       (byte-compile-file buffer-file-name))
      ;; default
-     (t
-      (message "Was not possible to compile the file: %s"
-               buffer-file-name)))))
+     (t (message "Was not possible to compile the file: %s"
+                 buffer-file-name)))))
 
 ;;;###autoload
 (defun byte-compile-library (dir)
@@ -113,7 +116,7 @@
   (interactive
    (list (expand-file-name
           (read-directory-name "Dir: "
-           (concat user-emacs-directory "site-lisp") nil 't))))
+                               (concat user-emacs-directory "site-lisp") nil 't))))
   ;; get libraries directories
   (let ((libraries
          (cl-remove-if-not #'file-directory-p
